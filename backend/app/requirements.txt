@@ -1,0 +1,7 @@
+fastapi            # Web framework
+uvicorn[standard]  # ASGI server with live-reload
+sqlalchemy         # ORM for relational DB
+alembic            # Migrations
+psycopg2-binary    # Postgres driver
+pydantic           # Data validation
+python-dotenv      # Load .env secrets
