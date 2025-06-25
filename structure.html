@@ -1,0 +1,28 @@
+/
+├── backend/
+│   ├── requirements.txt             # Python deps
+│   └── app/
+│       ├── main.py                  # Entrypoint
+│       ├── core/
+│       │   └── config.py            # App settings (DB URL, secrets)
+│       ├── db.py                    # DB engine & session
+│       ├── models/                  # ORM models
+│       │   ├── base.py
+│       │   └── user.py
+│       ├── schemas/                 # Pydantic models (request/response)
+│       │   └── user.py
+│       ├── crud/                    # DB-access functions
+│       │   └── user.py
+│       └── api/
+│           └── v1/
+│               ├── api.py           # V1 router
+│               └── endpoints/
+│                   └── users.py     # /users endpoints
+└── frontend/
+    ├── package.json
+    ├── tailwind.config.js
+    └── src/
+        ├── App.jsx
+        ├── index.jsx
+        └── components/
+            └── LoginForm.jsx
