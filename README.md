@@ -46,7 +46,7 @@ RelayPoint is an integrated, modular platform that:
 - **Light/Dark Mode Toggle**: Animated sliding switch with sun ☀️ and moon 🌙 icons—persists user choice and respects system preference.  
 - **Dynamic Logo Swap**: Theme-aware PNG/SVG assets auto-switch so your brand always pops.  
 - **CSS Variable Animations**: Smooth transitions for background, text, and accent colors.  
-- **Accessible & Performant**: ARIA roles, focus states, zero-dep icons, no-flash initialization.  
+- **Accessible & Performant**: ARIA roles, focus states, zero-dependency icons, no-flash initialization.  
 
 ---
 
@@ -74,14 +74,14 @@ With minimal competition in a unified suite—and a growing demand for mobile-fi
 - **Professional Services**: Onboarding, custom integrations, branding, and training.  
 - **Marketplace Add-Ons**: Third-party integrations (IoT sensors, digital signage, PMS connectors).  
 
-Targeting \$5 K–\$50 K ARR per location, with 40% gross margins on software and 60% on services.  
+Targeting \$5 K–\$50 K ARR per location, with 40 % gross margins on software and 60 % on services.  
 
 ---
 
 ## 🚀 Go-to-Market Strategy  
-1. **Pilot Partnerships**: 5–10 regional hotel groups & healthcare facilities.  
+1. **Pilot Partnerships**: 5–10 regional hotel groups & healthcare clinics.  
 2. **Channel Alliances**: PMS, hospitality integrators, foodservice consultants.  
-3. **Direct Sales**: Sales team focused on mid-market chains (50–500 rooms/beds).  
+3. **Direct Outreach**: Targeted campaigns for mid-market chains (50–500 rooms/beds).  
 4. **Content & Events**: Webinars, trade shows (HFTP, NRA MegaShow), case studies.  
 
 ---
@@ -89,9 +89,9 @@ Targeting \$5 K–\$50 K ARR per location, with 40% gross margins on software an
 ## 📊 Traction & Validation  
 - **Private Beta**: Live in 3 hotel properties (120 rooms) and 2 healthcare clinics.  
 - **Early Metrics**:  
-  - 95% daily active use among frontline staff  
-  - 30% reduction in service-order response times  
-  - 20% fewer scheduling conflicts and payroll disputes  
+  - 95 % daily active use among frontline staff  
+  - 30 % reduction in service-order response times  
+  - 20 % fewer scheduling conflicts and payroll disputes  
 - **LOIs Signed**: Letters of intent totaling \$120 K ARR from 2 regional hotel groups.  
 
 ---
@@ -112,12 +112,13 @@ Targeting \$5 K–\$50 K ARR per location, with 40% gross margins on software an
 
 ## 👥 Founding Team & Credits  
 - **Demond Balentine**, Founder & CEO  
-  - Serial entrepreneur, backend dev, ex-ScoutVision founder  
-  - 10+ years building high-scale platforms for sports scouting & operations  
-- **Hope Balentine**, Concept Creator & Product Muse  
-  - Originated the unified RelayPoint vision and feature set  
-- **CTO (TBD)**, Real-time systems architect; led global messaging products  
-- **Head of Sales**, Hospitality veteran with 200+ property relationships  
+  - Currently pursuing a Full Stack Development diploma at Atlas School  
+  - Crafting RelayPoint’s frontend & backend with a focus on real-world workflows and elegant code  
+- **Hope Balentine**, Co-Creator & Advisor  
+  - Former Technical Administrator at Walmart Stores Inc. (Bentonville, AR)  
+  - Brings hospitality-industry insight on process streamlining and user needs  
+- **Balentine Creative**, Development Studio  
+  - A two-person team committed to straightforward, scalable solutions  
 - **Advisors**: 2 former hotel GMs, 1 former health-system COO  
 
 ---
@@ -135,7 +136,7 @@ Raising **\$1.5 M Seed** to:
 ---
 
 ## 🔒 License  
-Proprietary software – **All rights reserved**  
+Proprietary software — **All rights reserved**  
 
 ---
 
@@ -143,7 +144,7 @@ Proprietary software – **All rights reserved**
 **Demond Balentine**  
 ✉️ demond.balentine@atlasschool.com  
 📱 479-250-2573  
-🔗 https://linkedin.com/in/demond-balentine-481666a7  
+🔗 linkedin.com/in/demond-balentine-481666a7  
 
 **Hope Balentine**  
 ✉️ balentinehope25@gmail.com  
