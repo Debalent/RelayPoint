@@ -149,3 +149,4 @@ Proprietary software — **All rights reserved**
 **Hope Balentine**  
 ✉️ balentinehope25@gmail.com  
 📱 479-250-2572  
+**Concept still in Development**
