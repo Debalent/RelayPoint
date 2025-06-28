@@ -1,28 +1,31 @@
 /
 ├── backend/
-│   ├── requirements.txt             # Python deps
+│   ├── requirements.txt             # Python dependencies
 │   └── app/
-│       ├── main.py                  # Entrypoint
+│       ├── main.py                  # FastAPI entrypoint & router includers
 │       ├── core/
-│       │   └── config.py            # App settings (DB URL, secrets)
-│       ├── db.py                    # DB engine & session
+│       │   └── config.py            # Settings: DB URL, JWT secrets, expiries
+│       ├── db.py                    # SQLAlchemy engine & get_db session
 │       ├── models/                  # ORM models
 │       │   ├── base.py
-│       │   └── user.py
-│       ├── schemas/                 # Pydantic models (request/response)
-│       │   └── user.py
-│       ├── crud/                    # DB-access functions
-│       │   └── user.py
+│       │   └── user.py              # User + reset_token fields & helpers
+│       ├── schemas/                 # Pydantic request/response models
+│       │   └── user.py              # UserCreate, UserRead, Token, Reset schemas
+│       ├── crud/                    # Database-access functions
+│       │   └── user.py              # create/get/auth/reset functions
 │       └── api/
 │           └── v1/
-│               ├── api.py           # V1 router
+│               ├── api.py           # v1 APIRouter
 │               └── endpoints/
-│                   └── users.py     # /users endpoints
+│                   ├── auth.py      # /auth/register, /auth/login, reset flows
+│                   └── users.py     # /users CRUD (if you add more endpoints)
 └── frontend/
-    ├── package.json
-    ├── tailwind.config.js
+    ├── package.json                 # React + Tailwind deps & scripts
+    ├── tailwind.config.js           # Tailwind theming + dark-mode setup
     └── src/
-        ├── App.jsx
-        ├── index.jsx
+        ├── index.jsx                # Pre-init theme, mount <App />
+        ├── App.jsx                  # Layout shell & <Routes />
         └── components/
-            └── LoginForm.jsx
+            ├── ThemeToggle.jsx      # Light/dark switch
+            ├── Logo.jsx             # Auto-switch PNG/SVG
+            └── LoginForm.jsx        # Auth UI
