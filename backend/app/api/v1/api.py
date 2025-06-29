@@ -1,5 +1,18 @@
+# backend/app/api/v1/api.py
+
 from fastapi import APIRouter
-from .endpoints import users
+
+# import each router from your endpoints package
+from .endpoints import auth, users, teams, projects, workflows, steps
 
 api_router = APIRouter()
-api_router.include_router(users.router, prefix="/users", tags=["users"])
+
+# existing auth & users
+api_router.include_router(auth.router,     prefix="/auth",     tags=["auth"])
+api_router.include_router(users.router,    prefix="/users",    tags=["users"])
+
+# new domain routers
+api_router.include_router(teams.router,    prefix="/teams",    tags=["teams"])
+api_router.include_router(projects.router, prefix="/projects", tags=["projects"])
+api_router.include_router(workflows.router,prefix="/workflows",tags=["workflows"])
+api_router.include_router(steps.router,    prefix="/steps",    tags=["steps"])
