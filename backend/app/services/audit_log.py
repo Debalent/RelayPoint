@@ -24,3 +24,24 @@ def log_role_change(db: Session, admin_id: int, user_id: int, old_role: str, new
     )
     db.add(log)
     db.commit()
+
+def log_workflow_edit(db: Session, admin_id: int, workflow_id: int, field_changed: str, old_value: str, new_value: str):
+    """
+    Records a workflow edit event in the audit log.
+    Captures what was changed, by whom, and when.
+
+    Strategic Role:
+    - Powers behavioral analytics and governance transparency.
+    - Scalable for multi-tenant orgs, investor dashboards, and audit trails.
+    - Extensible for step-level diffs, versioning, and rollback logic.
+    """
+    log = AuditLog(
+        admin_id=admin_id,
+        user_id=None,
+        action="workflow_edit",
+        old_value=f"{field_changed}: {old_value}",
+        new_value=f"{field_changed}: {new_value}",
+        timestamp=datetime.utcnow()
+    )
+    db.add(log)
+    db.commit()
