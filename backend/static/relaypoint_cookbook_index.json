@@ -1,0 +1,36 @@
+{
+  "title": "RelayPoint Developer Cookbook",
+  "version": "0.1",
+  "sections": [
+    {
+      "id": "persona-routing",
+      "title": "Persona Routing",
+      "description": "How RelayPoint activates users based on role, tier, and automation intent."
+    },
+    {
+      "id": "workflow-orchestration",
+      "title": "Workflow Orchestration",
+      "description": "Modular strategies for building, assigning, and scaling multi-step workflows."
+    },
+    {
+      "id": "automation-fatigue",
+      "title": "Automation Fatigue Signals",
+      "description": "Detecting burnout, overextension, and workflow overload in growth-stage teams."
+    },
+    {
+      "id": "governance-patterns",
+      "title": "Governance Patterns",
+      "description": "Audit logging, replay timelines, and scorecards for operational clarity."
+    },
+    {
+      "id": "collaboration-metrics",
+      "title": "Collaboration Metrics",
+      "description": "Heatmaps, density tracking, and contributor mapping across workflows."
+    },
+    {
+      "id": "upgrade-nudges",
+      "title": "Upgrade Nudges",
+      "description": "Behavior-triggered prompts for tier conversion and feature unlocks."
+    }
+  ]
+}
