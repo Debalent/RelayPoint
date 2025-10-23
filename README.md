@@ -26,7 +26,7 @@ Transform your business processes with intelligent automation, real-time collabo
 Demond J Balentine (Debalent)
 BalentineCreative
 Phone: 479-250-2573
-Email: demond.balentine@atlasstudents.com
+Email: [demond.balentine@atlasstudents.com](mailto:demond.balentine@atlasstudents.com)
 
 ## License
 
