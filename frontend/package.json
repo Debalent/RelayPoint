@@ -84,7 +84,10 @@
     "lint-staged": "^15.2.0",
     "@storybook/react": "^7.6.3",
     "@storybook/addon-essentials": "^7.6.3",
-    "chromatic": "^7.6.0"
+    "chromatic": "^7.6.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -109,10 +112,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.11"
   }
 }
