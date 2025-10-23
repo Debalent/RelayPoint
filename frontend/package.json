@@ -1,7 +1,8 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "relaypoint-elite-frontend",
+  "version": "2.0.0",
   "private": true,
+  "description": "Enterprise AI-Powered Workflow Automation Platform Frontend",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -9,8 +10,81 @@
     "@testing-library/user-event": "^13.5.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-scripts": "^0.0.0",
-    "web-vitals": "^2.1.4"
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4",
+    
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "typescript": "^5.3.3",
+    
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.15.0",
+    "@mui/icons-material": "^5.15.0",
+    "@mui/x-data-grid": "^6.18.0",
+    "@mui/x-date-pickers": "^6.18.0",
+    
+    "react-router-dom": "^6.20.0",
+    "react-query": "^3.39.3",
+    "axios": "^1.6.2",
+    "socket.io-client": "^4.7.4",
+    
+    "@dnd-kit/core": "^6.0.8",
+    "@dnd-kit/sortable": "^8.0.0",
+    "@dnd-kit/utilities": "^3.2.1",
+    
+    "react-flow-renderer": "^10.3.17",
+    "reactflow": "^11.10.1",
+    
+    "recharts": "^2.8.0",
+    "d3": "^7.8.5",
+    "@types/d3": "^7.4.3",
+    
+    "framer-motion": "^10.16.16",
+    "react-spring": "^9.7.3",
+    
+    "date-fns": "^2.30.0",
+    "lodash": "^4.17.21",
+    "@types/lodash": "^4.14.202",
+    
+    "react-hook-form": "^7.48.2",
+    "yup": "^1.4.0",
+    "@hookform/resolvers": "^3.3.2",
+    
+    "monaco-editor": "^0.45.0",
+    "@monaco-editor/react": "^4.6.0",
+    
+    "react-beautiful-dnd": "^13.1.1",
+    "@types/react-beautiful-dnd": "^13.1.8",
+    
+    "react-virtualized": "^9.22.5",
+    "@types/react-virtualized": "^9.21.29",
+    
+    "react-helmet-async": "^2.0.4",
+    "react-error-boundary": "^4.0.11",
+    
+    "zustand": "^4.4.7",
+    "immer": "^10.0.3",
+    
+    "@tanstack/react-virtual": "^3.0.0",
+    "@tanstack/react-table": "^8.10.7"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.8",
+    "@typescript-eslint/eslint-plugin": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.1",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.1.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "@storybook/react": "^7.6.3",
+    "@storybook/addon-essentials": "^7.6.3",
+    "chromatic": "^7.6.0"
   },
   "scripts": {
     "start": "react-scripts start",

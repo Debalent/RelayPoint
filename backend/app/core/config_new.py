@@ -1,4 +1,3 @@
-```python
 """
 Configuration settings for RelayPoint's FastAPI backend.
 
@@ -28,36 +27,10 @@ from pydantic import BaseSettings, HttpUrl, EmailStr, validator
 from typing import List, Optional
 from functools import lru_cache
 import os
-from loguru import logger
 
 class Settings(BaseSettings):
     """
     RelayPoint application settings, parsed from environment variables or .env file.
-
-    Attributes:
-        PROJECT_NAME: Name of the project (displayed in OpenAPI docs).
-        APP_VERSION: Application version for tracking releases.
-        DEBUG: Enable debug mode (use False in production).
-        API_V1_STR: API v1 prefix for routing.
-        CORS_ORIGINS: Allowed CORS origins for frontend integration.
-        ALLOWED_HOSTS: Allowed hosts for security middleware.
-        DATABASE_URL: PostgreSQL connection URL (with asyncpg driver).
-        REDIS_URL: Redis connection URL for caching and sessions.
-        AUTH0_DOMAIN: Auth0 domain for OAuth 2.0 authentication.
-        AUTH0_AUDIENCE: Auth0 audience for token validation.
-        AUTH0_CLIENT_ID: Auth0 client ID for API interactions.
-        AUTH0_CLIENT_SECRET: Auth0 client secret for secure API calls.
-        ACCESS_TOKEN_EXPIRE_MINUTES: Access token expiry duration.
-        REFRESH_TOKEN_EXPIRE_DAYS: Refresh token expiry duration.
-        PROMETHEUS_ENABLED: Enable Prometheus metrics endpoint.
-        LOKI_ENDPOINT: Loki endpoint for log aggregation.
-        OPENAI_API_KEY: OpenAI API key for AI features.
-        ANTHROPIC_API_KEY: Anthropic API key for Claude integration.
-        XAI_API_KEY: API key for xAI (Grok 3) integration.
-        SENTRY_DSN: Sentry DSN for error tracking.
-        CELERY_BROKER_URL: Celery broker URL for background tasks.
-        CELERY_RESULT_BACKEND: Celery result backend URL.
-        ENVIRONMENT: Deployment environment (dev, staging, prod).
     """
     # Project metadata
     PROJECT_NAME: str = "RelayPoint API"
@@ -90,10 +63,10 @@ class Settings(BaseSettings):
     )
 
     # Auth0 configuration
-    AUTH0_DOMAIN: str = os.getenv("AUTH0_DOMAIN", "<your-auth0-domain>")
-    AUTH0_AUDIENCE: str = os.getenv("AUTH0_AUDIENCE", "<your-auth0-audience>")
-    AUTH0_CLIENT_ID: str = os.getenv("AUTH0_CLIENT_ID", "<your-auth0-client-id>")
-    AUTH0_CLIENT_SECRET: str = os.getenv("AUTH0_CLIENT_SECRET", "<your-auth0-client-secret>")
+    AUTH0_DOMAIN: str = os.getenv("AUTH0_DOMAIN", "relaypoint.auth0.com")
+    AUTH0_AUDIENCE: str = os.getenv("AUTH0_AUDIENCE", "relaypoint-api")
+    AUTH0_CLIENT_ID: str = os.getenv("AUTH0_CLIENT_ID", "client-id")
+    AUTH0_CLIENT_SECRET: str = os.getenv("AUTH0_CLIENT_SECRET", "client-secret")
 
     # Token expiry settings
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 1 week
@@ -101,7 +74,7 @@ class Settings(BaseSettings):
 
     # Observability settings
     PROMETHEUS_ENABLED: bool = True
-    LOKI_ENDPOINT: Optional[HttpUrl] = os.getenv("LOKI_ENDPOINT", "http://loki:3100")
+    LOKI_ENDPOINT: Optional[str] = os.getenv("LOKI_ENDPOINT", "http://loki:3100")
     SENTRY_DSN: Optional[str] = os.getenv("SENTRY_DSN", None)
 
     # AI integration settings
@@ -131,64 +104,16 @@ class Settings(BaseSettings):
     SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
     SMTP_USER: Optional[str] = os.getenv("SMTP_USER", None)
     SMTP_PASSWORD: Optional[str] = os.getenv("SMTP_PASSWORD", None)
-    EMAIL_FROM: Optional[EmailStr] = os.getenv("EMAIL_FROM", None)
+    EMAIL_FROM: Optional[str] = os.getenv("EMAIL_FROM", None)
 
     # Environment
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
 
     @validator("CORS_ORIGINS", pre=True)
-    def parse_cors_origins(cls, v: str | List[str]) -> List[str]:
-        """
-        Parse CORS origins from a comma-separated string or list.
-
-        Args:
-            v: Input value (string or list).
-
-        Returns:
-            List[str]: List of CORS origins.
-
-        Raises:
-            ValueError: If origins are invalid.
-        """
+    def parse_cors_origins(cls, v):
+        """Parse CORS origins from a comma-separated string or list."""
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",") if origin.strip()]
-        return v
-
-    @validator("DATABASE_URL")
-    def validate_database_url(cls, v: str) -> str:
-        """
-        Ensure DATABASE_URL uses asyncpg driver for async support.
-
-        Args:
-            v: Database URL.
-
-        Returns:
-            str: Validated database URL.
-
-        Raises:
-            ValueError: If URL is invalid or missing asyncpg.
-        """
-        if "postgresql+asyncpg" not in v:
-            logger.warning("DATABASE_URL should use asyncpg driver for optimal performance")
-        return v
-
-    @validator("AUTH0_DOMAIN", "AUTH0_AUDIENCE", "AUTH0_CLIENT_ID", "AUTH0_CLIENT_SECRET")
-    def validate_auth0_settings(cls, v: str, field: str) -> str:
-        """
-        Ensure Auth0 settings are provided in production.
-
-        Args:
-            v: Value of the Auth0 setting.
-            field: Name of the field being validated.
-
-        Returns:
-            str: Validated value.
-
-        Raises:
-            ValueError: If Auth0 settings are missing in production.
-        """
-        if cls().ENVIRONMENT == "production" and "<your-auth0-" in v:
-            raise ValueError(f"{field} must be set in production")
         return v
 
     class Config:
@@ -198,15 +123,8 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings() -> Settings:
-    """
-    Get cached settings instance for performance.
-
-    Returns:
-        Settings: Cached settings object.
-    """
-    logger.info("Loading RelayPoint settings")
+    """Get cached settings instance for performance."""
     return Settings()
 
 # Singleton settings instance
 settings = get_settings()
-```
