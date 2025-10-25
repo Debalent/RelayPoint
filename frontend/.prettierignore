@@ -1,0 +1,19 @@
+# Build artifacts
+build/
+dist/
+coverage/
+
+# Dependencies
+node_modules/
+
+# Generated files
+*.generated.*
+*.min.*
+
+# Config files that should maintain their format
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Public assets
+public/

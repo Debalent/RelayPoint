@@ -14,6 +14,11 @@ Transform your business processes with intelligent automation, real-time collabo
 - Enterprise Security (SOC 2, GDPR, HIPAA)
 - High Performance Auto-scaling
 
+## Documentation
+
+- [Development Guide](DEVELOPMENT.md) - Setup and development workflow
+- [Code Quality Guide](CODE_QUALITY.md) - Code quality standards and tools
+
 ## Technology Stack
 
 - Frontend: React 19 + TypeScript

@@ -140,6 +140,25 @@ Start the monitoring stack with:
 
 We use several tools to maintain code quality:
 
+### Automated Code Quality Fixer
+
+We've added scripts to automatically fix common code quality issues:
+
+```bash
+# Windows
+.\fix_code_issues.ps1
+
+# Linux/Mac
+chmod +x ./fix_code_issues.sh
+./fix_code_issues.sh
+```
+
+This script will:
+1. Format all code using appropriate formatters
+2. Fix linting issues that can be automatically fixed
+3. Run type checking to identify type errors
+4. Run tests to verify the fixes
+
 ### Pre-commit Hooks
 
 Install pre-commit hooks to automatically format and lint code before commits:
@@ -158,15 +177,22 @@ pre-commit install
 - **isort**: Import sorting
 - **mypy**: Static type checking
 - **pytest**: Testing framework
-- **ruff**: Fast linter
+- **ruff**: Fast linter with auto-fix capabilities
 - **bandit**: Security scanning
 
 ### Frontend (TypeScript/JavaScript)
 
-- **ESLint**: Code linting
+- **ESLint**: Code linting with auto-fix capabilities
 - **Prettier**: Code formatting
-- **TypeScript**: Static type checking
+- **TypeScript**: Static type checking with strict rules
 - **Jest**: Testing framework
+
+### Configuration Files
+
+- **pyproject.toml**: Configuration for Python tools (Black, isort, mypy, ruff)
+- **.eslintrc.js**: ESLint configuration for JavaScript/TypeScript
+- **.prettierrc**: Prettier configuration for code formatting
+- **tsconfig.json**: TypeScript configuration with strict type checking
 
 ## Debugging
 
