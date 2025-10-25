@@ -1,0 +1,388 @@
+# Default values for RelayPoint Elite Helm chart
+# This is a YAML-formatted file.
+
+# Global settings
+global:
+  environment: production
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+# Backend API service configuration
+backend:
+  enabled: true
+  name: backend
+  replicaCount: 2
+  image:
+    repository: ghcr.io/relaypoint/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  service:
+    type: ClusterIP
+    port: 8000
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: api.relaypoint.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: relaypoint-tls
+        hosts:
+          - api.relaypoint.ai
+  env:
+    - name: ENVIRONMENT
+      value: "production"
+    - name: DEBUG
+      value: "false"
+    - name: DATABASE_URL
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: database-url
+    - name: REDIS_URL
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: redis-url
+    - name: SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: secret-key
+    - name: OPENAI_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: openai-api-key
+    - name: ANTHROPIC_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: anthropic-api-key
+
+# Frontend application configuration
+frontend:
+  enabled: true
+  name: frontend
+  replicaCount: 2
+  image:
+    repository: ghcr.io/relaypoint/frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  service:
+    type: ClusterIP
+    port: 3000
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: app.relaypoint.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: relaypoint-tls
+        hosts:
+          - app.relaypoint.ai
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: REACT_APP_API_URL
+      value: "https://api.relaypoint.ai"
+    - name: REACT_APP_WS_URL
+      value: "wss://api.relaypoint.ai"
+
+# Celery worker configuration
+celeryWorker:
+  enabled: true
+  name: celery-worker
+  replicaCount: 2
+  image:
+    repository: ghcr.io/relaypoint/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  command: ["celery", "-A", "app.main", "worker", "--loglevel=info", "--concurrency=4"]
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+  env:
+    - name: ENVIRONMENT
+      value: "production"
+    - name: DATABASE_URL
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: database-url
+    - name: REDIS_URL
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: redis-url
+    - name: CELERY_BROKER_URL
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: celery-broker-url
+    - name: CELERY_RESULT_BACKEND
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: celery-result-backend
+    - name: SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: secret-key
+    - name: OPENAI_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: openai-api-key
+    - name: ANTHROPIC_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: anthropic-api-key
+
+# Celery beat scheduler configuration
+celeryBeat:
+  enabled: true
+  name: celery-beat
+  replicaCount: 1
+  image:
+    repository: ghcr.io/relaypoint/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  command: ["celery", "-A", "app.main", "beat", "--loglevel=info"]
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+  env:
+    - name: ENVIRONMENT
+      value: "production"
+    - name: DATABASE_URL
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: database-url
+    - name: REDIS_URL
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: redis-url
+    - name: CELERY_BROKER_URL
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: celery-broker-url
+    - name: CELERY_RESULT_BACKEND
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: celery-result-backend
+    - name: SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: secret-key
+
+# Flower monitoring configuration
+flower:
+  enabled: true
+  name: flower
+  replicaCount: 1
+  image:
+    repository: ghcr.io/relaypoint/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  command: ["celery", "-A", "app.main", "flower", "--port=5555"]
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+  service:
+    type: ClusterIP
+    port: 5555
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/auth-type: basic
+      nginx.ingress.kubernetes.io/auth-secret: flower-auth
+      nginx.ingress.kubernetes.io/auth-realm: "Authentication Required"
+    hosts:
+      - host: flower.relaypoint.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: relaypoint-tls
+        hosts:
+          - flower.relaypoint.ai
+  env:
+    - name: CELERY_BROKER_URL
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: celery-broker-url
+    - name: CELERY_RESULT_BACKEND
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: celery-result-backend
+    - name: FLOWER_BASIC_AUTH
+      valueFrom:
+        secretKeyRef:
+          name: relaypoint-secrets
+          key: flower-auth
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  auth:
+    username: relaypoint
+    database: relaypoint_elite
+    existingSecret: relaypoint-secrets
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: postgres-password
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+
+# Redis configuration
+redis:
+  enabled: true
+  auth:
+    existingSecret: relaypoint-secrets
+    existingSecretPasswordKey: redis-password
+  master:
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+
+# Prometheus monitoring
+prometheus:
+  enabled: false
+
+# Grafana dashboards
+grafana:
+  enabled: false
+
+# Secrets configuration
+secrets:
+  create: false
+  name: relaypoint-secrets

@@ -1,0 +1,20 @@
+# RelayPoint Elite - Frontend Development Container
+FROM node:18-alpine
+
+# Install development dependencies
+RUN apk add --no-cache git curl
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Expose ports
+EXPOSE 3000 9229
+
+# Command will be overridden by docker-compose
+CMD ["npm", "start"]

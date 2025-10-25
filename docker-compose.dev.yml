@@ -1,0 +1,270 @@
+# RelayPoint Elite - Enhanced Development Docker Compose
+# Local development environment with hot reloading, debugging, and developer tools
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: relaypoint_postgres_dev
+    environment:
+      POSTGRES_DB: relaypoint_elite
+      POSTGRES_USER: relaypoint
+      POSTGRES_PASSWORD: devpassword
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      # Add initialization scripts
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U relaypoint -d relaypoint_elite"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Redis Cache & Session Store
+  redis:
+    image: redis:7-alpine
+    container_name: relaypoint_redis_dev
+    command: redis-server --appendonly yes --requirepass devpassword
+    volumes:
+      - redis_data_dev:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "devpassword", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Backend API Service - Development Mode
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: relaypoint_backend_dev
+    volumes:
+      - ./backend:/app
+      - backend_venv:/app/.venv
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - DATABASE_URL=postgresql://relaypoint:devpassword@postgres:5432/relaypoint_elite
+      - REDIS_URL=redis://:devpassword@redis:6379/0
+      - CELERY_BROKER_URL=redis://:devpassword@redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://:devpassword@redis:6379/2
+      - SECRET_KEY=dev_secret_key_change_me_in_production
+      # Add dummy API keys for development (or use .env file)
+      - OPENAI_API_KEY=sk-dummy-key-for-development
+      - ANTHROPIC_API_KEY=dummy-key-for-development
+      - CORS_ORIGINS=http://localhost:3000,http://frontend:3000
+      # Enable development features
+      - PROMETHEUS_ENABLED=true
+      - LOG_LEVEL=DEBUG
+      - RELOAD=true
+    ports:
+      - "8000:8000"
+      - "5678:5678"  # For Python debugger
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "python -m pip install -e . &&
+             python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    # Add development labels
+    labels:
+      dev.relaypoint.description: "FastAPI Backend Service"
+      dev.relaypoint.docs: "http://localhost:8000/docs"
+      dev.relaypoint.debug: "debugpy on port 5678"
+
+  # Frontend Application - Development Mode
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: relaypoint_frontend_dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_WS_URL=ws://localhost:8000
+      - CHOKIDAR_USEPOLLING=true  # For hot reloading in Docker
+      - BROWSER=none              # Don't open browser automatically
+      - TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling  # Better performance for TypeScript
+      - FAST_REFRESH=true         # Enable React Fast Refresh
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # For Node.js debugger
+    depends_on:
+      - backend
+    command: npm start
+    # Add development labels
+    labels:
+      dev.relaypoint.description: "React Frontend Application"
+      dev.relaypoint.url: "http://localhost:3000"
+      dev.relaypoint.debug: "Node inspector on port 9229"
+
+  # Celery Worker - Development Mode
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: relaypoint_celery_worker_dev
+    volumes:
+      - ./backend:/app
+      - backend_venv:/app/.venv
+    environment:
+      - ENVIRONMENT=development
+      - DATABASE_URL=postgresql://relaypoint:devpassword@postgres:5432/relaypoint_elite
+      - REDIS_URL=redis://:devpassword@redis:6379/0
+      - CELERY_BROKER_URL=redis://:devpassword@redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://:devpassword@redis:6379/2
+      - SECRET_KEY=dev_secret_key_change_me_in_production
+      - OPENAI_API_KEY=sk-dummy-key-for-development
+      - ANTHROPIC_API_KEY=dummy-key-for-development
+      - C_FORCE_ROOT=true  # Allow running as root (development only)
+      - CELERY_TASK_ALWAYS_EAGER=false  # Run tasks asynchronously
+    depends_on:
+      - postgres
+      - redis
+      - backend
+    command: watchmedo auto-restart --directory=./app --pattern=*.py --recursive -- celery -A app.main worker --loglevel=info
+    # Add development labels
+    labels:
+      dev.relaypoint.description: "Celery Worker for Background Tasks"
+      dev.relaypoint.monitor: "Flower on port 5555"
+
+  # Flower - Celery Monitoring
+  flower:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: relaypoint_flower_dev
+    volumes:
+      - ./backend:/app
+    environment:
+      - CELERY_BROKER_URL=redis://:devpassword@redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://:devpassword@redis:6379/2
+      - FLOWER_BASIC_AUTH=admin:devpassword  # Basic auth for development
+      - FLOWER_PERSISTENT=true
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - celery_worker
+    command: celery -A app.main flower --port=5555
+    # Add development labels
+    labels:
+      dev.relaypoint.description: "Celery Monitoring Dashboard"
+      dev.relaypoint.url: "http://localhost:5555"
+
+  # PgAdmin - PostgreSQL Management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: relaypoint_pgadmin_dev
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@relaypoint.ai
+      PGADMIN_DEFAULT_PASSWORD: devpassword
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    # Add development labels
+    labels:
+      dev.relaypoint.description: "PostgreSQL Admin Interface"
+      dev.relaypoint.url: "http://localhost:5050"
+
+  # Redis Commander - Redis Management
+  redis_commander:
+    image: rediscommander/redis-commander:latest
+    container_name: relaypoint_redis_commander_dev
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0:devpassword
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    # Add development labels
+    labels:
+      dev.relaypoint.description: "Redis Management Interface"
+      dev.relaypoint.url: "http://localhost:8081"
+
+  # Mailhog - Email Testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: relaypoint_mailhog_dev
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web UI
+    # Add development labels
+    labels:
+      dev.relaypoint.description: "Email Testing Service"
+      dev.relaypoint.url: "http://localhost:8025"
+
+  # Prometheus - Metrics Collection (optional, enable as needed)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: relaypoint_prometheus_dev
+    volumes:
+      - ./docker/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    profiles: ["monitoring"]  # Only start with explicit profile
+    # Add development labels
+    labels:
+      dev.relaypoint.description: "Metrics Collection"
+      dev.relaypoint.url: "http://localhost:9090"
+
+  # Grafana - Metrics Visualization (optional, enable as needed)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: relaypoint_grafana_dev
+    volumes:
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=devpassword
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    profiles: ["monitoring"]  # Only start with explicit profile
+    # Add development labels
+    labels:
+      dev.relaypoint.description: "Metrics Visualization"
+      dev.relaypoint.url: "http://localhost:3001"
+
+volumes:
+  postgres_data_dev:
+  redis_data_dev:
+  backend_venv:
+  pgadmin_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  default:
+    name: relaypoint_dev_network
