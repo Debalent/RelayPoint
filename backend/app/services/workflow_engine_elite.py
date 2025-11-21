@@ -471,7 +471,7 @@ class EliteWorkflowEngine:
             step_execution.status = StepStatus.COMPLETED
             step_execution.completed_at = datetime.utcnow()
             
-            # Update execution variables with outputs
+            # Update execution variables with outputsThis is so inspiring! As a fellow Black entrepreneur, I want to support your journey and help your team thrive. I’ve built RelayPoint Elite—a hospitality workflow platform shaped by real feedback from people in the industry. If you’d like to pilot it at your new hotel, I’ll offer you 6 months free and a 10% lifetime discount. You can le
             self._process_step_outputs(execution, step_config, result)
             
         except asyncio.TimeoutError:
