@@ -29,10 +29,12 @@ RelayPoint Elite is a comprehensive platform designed to automate, streamline, a
 
 ## Technology Stack
 
-- **Frontend:** React 19, TypeScript, Material-UI
+- **Frontend (Device):** Dedicated iPad app (iOS — Swift/SwiftUI) for frontline staff and shared devices. This repo continues to maintain a web admin UI, but the primary user interface for operations will be an iOS app deployed to managed iPads.
 - **Backend:** FastAPI (Python 3.11)
 - **Database:** PostgreSQL 15, Redis 7
 - **Infrastructure:** Kubernetes, Docker, Prometheus, Grafana
+
+Note: The product is intentionally focused on an iOS-only frontline experience (company‑owned iPads) to simplify device management, security, and staff adoption. Web-based admin and integrations remain cross-platform as needed.
 
 ## User Instruction Manual
 
@@ -77,10 +79,10 @@ RelayPoint Elite is a comprehensive platform designed to automate, streamline, a
 
 ## Contact
 
-Demond J Balentine (Debalent)  
-BalentineCreative  
-Phone: 479-250-2573  
-Email: [demond.balentine@atlasstudents.com](mailto:demond.balentine@atlasstudents.com)
+- Demond J Balentine (Debalent)  
+- BalentineCreative  
+- Phone: 479-250-2573  
+- Emails: [balentinehope25@gmail.com](mailto:balentinehope25@gmail.com), [demond.balentine@outlook.com](mailto:demond.balentine@outlook.com)
 
 ## License
 
