@@ -34,7 +34,11 @@ RelayPoint Elite is a comprehensive platform designed to automate, streamline, a
 - **Database:** PostgreSQL 15, Redis 7
 - **Infrastructure:** Kubernetes, Docker, Prometheus, Grafana
 
-Note: The product is intentionally focused on an iOS-only frontline experience (company‑owned iPads) to simplify device management, security, and staff adoption. Web-based admin and integrations remain cross-platform as needed.
+Note: The product is intentionally focused on an iOS-only frontline experience (company‑owned iPads) to simplify device management, security, and staff adoption.
+
+RelayPoint can provide iPads preloaded and configured to run only the RelayPoint app (Single App Mode) for pilot programs and as part of our licensing/managed-service options. During the pilot period we supply, image, and enroll devices into an MDM so customers do not need to source hardware, cases, or docks. After a successful pilot, hardware provisioning can remain included in the licensing package or be migrated to the customer's Apple Business Manager and MDM if preferred.
+
+Web-based admin and integrations remain cross-platform as needed.
 
 ## User Instruction Manual
 
