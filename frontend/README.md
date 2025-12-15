@@ -1,65 +1,86 @@
-# Getting Started with Create React App
+# RelayPoint Elite Frontend - Cross-Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Architecture
 
-## Available Scripts
+This frontend is built with **React Native** and **Expo**, providing a unified codebase that runs on:
 
-In the project directory, you can run:
+- **iOS** (iPhone & iPad)
+- **Android** (phones & tablets)
+- **Web** (desktop & mobile browsers via React Native Web)
+- **Desktop** (Windows, macOS, Linux via Electron - planned)
 
-### `npm start`
+## Quick Start
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Prerequisites
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Node.js 18+ and npm/yarn
+- For iOS development: macOS with Xcode
+- For Android development: Android Studio
+- Expo CLI (installed automatically with dependencies)
 
-### `npm test`
+### Installation
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+cd frontend
+npm install
+```
 
-### `npm run build`
+### Development
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+#### Web Development
+```bash
+npm run start:web
+```
+Launches the web app at `http://localhost:19006`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+#### iOS Development
+```bash
+npm run start:ios
+```
+Launches in iOS Simulator (requires macOS and Xcode)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+#### Android Development
+```bash
+npm run start:android
+```
+Launches in Android Emulator (requires Android Studio)
 
-### `npm run eject`
+#### Universal Development Server
+```bash
+npm start
+```
+Opens Expo DevTools - scan QR code with Expo Go app for testing on physical devices
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Key Dependencies
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **React Native** - Core cross-platform framework
+- **Expo** - Development toolchain and native modules
+- **React Native Web** - Web support
+- **React Navigation** - Cross-platform navigation
+- **Redux Toolkit** - Global state management
+- **React Native Paper** - Material Design components
+- **Axios** - HTTP client
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Building for Production
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Web
+```bash
+npm run build:web
+```
+Outputs to `web-build/` directory - deploy to any static hosting
+
+### iOS/Android
+```bash
+npm run build:ios
+npm run build:android
+```
+Requires EAS Build setup (Expo Application Services)
 
 ## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- [React Native Documentation](https://reactnative.dev/)
+- [Expo Documentation](https://docs.expo.dev/)
+- [React Navigation](https://reactnavigation.org/)
 
 ### Deployment
 

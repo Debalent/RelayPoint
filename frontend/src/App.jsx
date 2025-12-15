@@ -1,38 +1,66 @@
 // frontend/src/App.jsx
+// Cross-platform React Native app for RelayPoint Elite
 
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import ThemeToggle from './components/ThemeToggle'     // Enables user personalization (light/dark mode)
-import Logo from './components/Logo'                   // Auto-switches branding assets based on theme
-import LoginForm from './components/LoginForm'         // Entry point for authentication flow
-import Dashboard from './components/Dashboard'         // Protected route for authenticated users
-import useAuth from './hooks/useAuth'                  // Custom hook for managing auth state
-import './index.css'                                   // Tailwind CSS integration for responsive theming
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { Platform, View, StyleSheet } from 'react-native';
+import ThemeToggle from './components/ThemeToggle';
+import Logo from './components/Logo';
+import LoginForm from './components/LoginForm';
+import Dashboard from './components/Dashboard';
+import useAuth from './hooks/useAuth';
+
+const Stack = createStackNavigator();
 
 export default function App() {
-  const { isAuthenticated } = useAuth()                // Checks if user has valid session token
+  const { isAuthenticated } = useAuth();
 
   return (
-    <Router>
-      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
-        <header className="flex items-center justify-between p-4">
-          <Logo className="h-12 w-auto" />             {/* Brand visibility and theme responsiveness */}
-          <ThemeToggle />                              {/* UX enhancement: user-controlled theming */}
-        </header>
-
-        <main className="p-4">
-          <Routes>
-            <Route path="/login" element={<LoginForm />} />
-            <Route
-              path="/dashboard"
-              element={
-                isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
-              }
-            />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
-  )
+    <NavigationContainer>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Logo style={styles.logo} />
+          <ThemeToggle />
+        </View>
+        
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            cardStyle: { backgroundColor: 'transparent' },
+          }}
+        >
+          {!isAuthenticated ? (
+            <Stack.Screen name="Login" component={LoginForm} />
+          ) : (
+            <Stack.Screen name="Dashboard" component={Dashboard} />
+          )}
+        </Stack.Navigator>
+      </View>
+    </NavigationContainer>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Platform.select({
+      web: '#ffffff',
+      default: '#f5f5f5',
+    }),
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: Platform.select({
+      web: '#ffffff',
+      default: 'transparent',
+    }),
+  },
+  logo: {
+    height: 48,
+    width: 'auto',
+  },
+});
