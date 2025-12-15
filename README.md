@@ -29,14 +29,28 @@ RelayPoint Elite is a comprehensive platform designed to automate, streamline, a
 
 ## Technology Stack
 
-- **Frontend:** Cross-platform support
-  - Web app (React/TypeScript) for desktop and mobile browsers
-  - Native iOS app (Swift/SwiftUI) for iPhone and iPad
-  - Native Android app (Kotlin/Jetpack Compose) for phones and tablets
-  - Progressive Web App (PWA) capabilities for offline access
-- **Backend:** FastAPI (Python 3.11)
+### Cross-Platform Architecture
+
+RelayPoint is built on a **unified cross-platform architecture** that enables a single codebase to run across all devices and operating systems:
+
+- **Frontend Framework:** React Native (TypeScript)
+  - Single codebase for iOS, Android, and web (via React Native Web)
+  - Native performance on mobile devices
+  - Responsive web experience for desktop browsers
+  - Offline-first architecture with local data persistence
+  - Progressive Web App (PWA) capabilities
+- **Desktop Support:** Electron wrapper for native desktop apps (Windows, macOS, Linux)
+- **Backend:** FastAPI (Python 3.11) - platform-agnostic REST API
 - **Database:** PostgreSQL 15, Redis 7
 - **Infrastructure:** Kubernetes, Docker, Prometheus, Grafana
+- **State Management:** Redux Toolkit with RTK Query
+- **Real-time:** WebSocket support for live collaboration
+
+This architecture ensures:
+- Consistent UX across all platforms
+- Reduced development and maintenance costs
+- Faster feature deployment
+- Easier testing and quality assurance
 
 ### Optional Managed Hardware
 
