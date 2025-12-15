@@ -106,9 +106,9 @@ After a successful pilot, hardware provisioning can remain included in the licen
 
 ## Contact
 
-- Demond J Balentine (Debalent)  
-- BalentineCreative  
-- Phone: 479-250-2573  
+- Demond J Balentine (Debalent)  Hope L. Balentine
+- Balentine Tech Solutions (BTS)  
+- Phone: 479-250-2573  479-250-2572
 - Emails: [balentinehope25@gmail.com](mailto:balentinehope25@gmail.com), [demond.balentine@outlook.com](mailto:demond.balentine@outlook.com)
 
 ## License
