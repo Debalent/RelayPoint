@@ -1,0 +1,3 @@
+action_id,timestamp_assigned,property_id,property_name,room_number,task_type,assigned_to,operator_id,auto_assigned,overridden,override_timestamp,override_reason,started_at,completed_at,result_helpful,notes
+wz-0001,2025-12-08T10:05:00Z,prop-101,Hotel Aurora,120,Housekeeping,Alex Johnson,op-01,true,false,, ,2025-12-08T10:12:00Z,2025-12-08T10:37:00Z,Yes,Assigned on checkout
+wz-0002,2025-12-08T11:00:00Z,prop-101,Hotel Aurora,215,Maintenance,Sam Patel,op-01,true,true,2025-12-08T11:05:00Z,Priority changed,2025-12-08T11:08:00Z,2025-12-08T11:30:00Z,No,Override due to guest request
