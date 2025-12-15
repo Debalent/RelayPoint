@@ -29,16 +29,25 @@ RelayPoint Elite is a comprehensive platform designed to automate, streamline, a
 
 ## Technology Stack
 
-- **Frontend (Device):** Dedicated iPad app (iOS — Swift/SwiftUI) for frontline staff and shared devices. This repo continues to maintain a web admin UI, but the primary user interface for operations will be an iOS app deployed to managed iPads.
+- **Frontend:** Cross-platform support
+  - Web app (React/TypeScript) for desktop and mobile browsers
+  - Native iOS app (Swift/SwiftUI) for iPhone and iPad
+  - Native Android app (Kotlin/Jetpack Compose) for phones and tablets
+  - Progressive Web App (PWA) capabilities for offline access
 - **Backend:** FastAPI (Python 3.11)
 - **Database:** PostgreSQL 15, Redis 7
 - **Infrastructure:** Kubernetes, Docker, Prometheus, Grafana
 
-Note: The product is intentionally focused on an iOS-only frontline experience (company‑owned iPads) to simplify device management, security, and staff adoption.
+### Optional Managed Hardware
 
-RelayPoint can provide iPads preloaded and configured to run only the RelayPoint app (Single App Mode) for pilot programs and as part of our licensing/managed-service options. During the pilot period we supply, image, and enroll devices into an MDM so customers do not need to source hardware, cases, or docks. After a successful pilot, hardware provisioning can remain included in the licensing package or be migrated to the customer's Apple Business Manager and MDM if preferred.
+RelayPoint offers **optional managed hardware** for organizations that prefer a turnkey solution. We can provide iPads preloaded and configured to run only the RelayPoint app (Single App Mode via MDM) for pilot programs and as part of licensing packages. During pilots, we supply, image, and enroll devices so customers don't need to source hardware, cases, or docks.
 
-Web-based admin and integrations remain cross-platform as needed.
+This managed hardware option is ideal for:
+- Organizations without existing device fleets
+- High-security or compliance-focused environments
+- Businesses preferring simplified device management and support
+
+After a successful pilot, hardware provisioning can remain included in the licensing package or be migrated to the customer's Apple Business Manager and MDM. **Customers who prefer to use their own devices (BYOD) or existing device fleets can deploy RelayPoint on any supported platform.**
 
 ## User Instruction Manual
 
