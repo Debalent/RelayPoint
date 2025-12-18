@@ -5,23 +5,22 @@ Context: Use for poll hand-raisers and targeted 10–20 prospect outreach. Perso
 Initial DM (Day 0 — short, personalize):
 
 Hi [Name], thanks for engaging with my poll — I’m Demond from RelayPoint.
-Quick Q: would you be open to a 15‑min workflow triage to see if a short 6‑week pilot could reduce housekeeping/maintenance friction at [Property Name]? Book here: [booking-link]
-If you prefer, I can send a short pilot summary + MOU.
+Quick Q: would you be open to a 15‑min workflow triage to see if a short 6‑week pilot could reduce housekeeping/maintenance friction at [Property Name]? Reply here or email demond.balentine@outlook.com with 'Pilot: [Property Name]' to book. If you prefer, I can send a short pilot summary + MOU.
 
 — Demond
 
 Follow-up DM 1 (Day 3 if no reply):
 
-Hi [Name], circling back — we have a couple pilot slots open and I thought [Property] might be a great fit. A 15‑min triage is the fastest way to see fit: [booking-link]
+Hi [Name], circling back — we have a couple pilot slots open and I thought [Property] might be a great fit. A 15‑min triage is the fastest way to see fit — reply here or email demond.balentine@outlook.com to book.
 
 Follow-up DM 2 (Day 7–10 final nudge):
 
-Hi [Name], final heads-up — we’re finalizing pilot spots for the month. If you want to reserve a spot quickly, you can claim it with a refundable $250 deposit here: [payment-link]
+Hi [Name], final heads-up — we’re finalizing pilot spots for the month. If you want to reserve a spot quickly, reply here or email demond.balentine@outlook.com and I’ll send the refundable $250 deposit link.
 
 Reply templates (use after they say Yes / Questions / Objection):
 
 If they say Yes / Booked:
-Thanks [Name] — appreciate it. I’ll send a short pre-call checklist (wifi test + point of contact) and the 1‑page MOU for review. If you want to reserve the slot now, you can claim it with a refundable $250 deposit: [payment-link]
+Thanks [Name] — appreciate it. I’ll send a short pre-call checklist (wifi test + point of contact) and the 1‑page MOU for review to the email you used to book. If you want to reserve the slot now, I can send a refundable $250 deposit link via email.
 
 If they ask for details (send pilot one-pager briefly):
 Sure — short summary below. Pilot = 6 weeks, turnkey setup (we can supply devices or use your devices), focus on housekeeping & maintenance, weekly reports. Want me to email the one-pager and the MOU?
@@ -37,5 +36,7 @@ We’ll run a 6-week pilot focused on [top pain]. If you’re happy, we can rese
 
 Tracking notes:
 - Always add each outreach to `PROSPECT_TEMPLATE.csv` with date, response, and next action.
-- Use UTM-coded booking links so bookings via the outreach are tracked.
+- Log bookings and email replies in the CSV; if you send payment links, use UTM-coded links or include a tracking ID so bookings via links are tracked.
 - Log deposits and MOU signatures in the same CSV.
+
+Suggested email subject when booking via email: "Pilot: [Property Name]" — please include the property name in your message to speed triage.
