@@ -5,22 +5,22 @@ Context: Use for poll hand-raisers and targeted 10–20 prospect outreach. Perso
 Initial DM (Day 0 — short, personalize):
 
 Hi [Name], thanks for engaging with my poll — I’m Demond from RelayPoint.
-Quick Q: would you be open to a 15‑min workflow triage to see if a short 6‑week pilot could reduce housekeeping/maintenance friction at [Property Name]? Reply here or email demond.balentine@outlook.com with 'Pilot: [Property Name]' to book. If you prefer, I can send a short pilot summary + MOU.
+Quick Q: would you be open to a 15‑min workflow triage to see if a short 6‑week pilot could reduce housekeeping/maintenance friction at [Property Name]? Reply here or email balentinetechsolutions@gmail.com with 'Pilot: [Property Name]' to book. If you prefer, I can send a short pilot summary + MOU.
 
 — Demond
 
 Follow-up DM 1 (Day 3 if no reply):
 
-Hi [Name], circling back — we have a couple pilot slots open and I thought [Property] might be a great fit. A 15‑min triage is the fastest way to see fit — reply here or email demond.balentine@outlook.com to book.
+Hi [Name], circling back — we have a couple pilot slots open and I thought [Property] might be a great fit. A 15‑min triage is the fastest way to see fit — reply here or email balentinetechsolutions@gmail.com to book.
 
 Follow-up DM 2 (Day 7–10 final nudge):
 
-Hi [Name], final heads-up — we’re finalizing pilot spots for the month. If you want to reserve a spot quickly, reply here or email demond.balentine@outlook.com and I’ll send the refundable $250 deposit link.
+Hi [Name], final heads-up — we’re finalizing pilot spots for the month. If you want to reserve a spot quickly, reply here or email balentinetechsolutions@gmail.com and I’ll send the refundable $250 deposit link.
 
 Reply templates (use after they say Yes / Questions / Objection):
 
 If they say Yes / Booked:
-Thanks [Name] — appreciate it. I’ll send a short pre-call checklist (wifi test + point of contact) and the 1‑page MOU for review to the email you used to book. If you want to reserve the slot now, I can send a refundable $250 deposit link via email.
+Thanks [Name] — appreciate it. I’ll send a short pre-call checklist (wifi test + point of contact) and the 1‑page MOU for review to the email you used to book (or to balentinetechsolutions@gmail.com if you prefer). If you want to reserve the slot now, I can send a refundable $250 deposit link via email.
 
 If they ask for details (send pilot one-pager briefly):
 Sure — short summary below. Pilot = 6 weeks, turnkey setup (we can supply devices or use your devices), focus on housekeeping & maintenance, weekly reports. Want me to email the one-pager and the MOU?
