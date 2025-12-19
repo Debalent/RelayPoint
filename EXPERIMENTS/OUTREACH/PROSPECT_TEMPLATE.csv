@@ -1,3 +1,4 @@
-name,title,company,company_size,location,linkedin_url,email,source,contacted_date,response,booked_date,deposit_status,notes
-Jane Doe,Director of Operations,Grand River Hotel,120 rooms,Portland,OR,https://linkedin.com/in/janedoe,jane.doe@grandriver.com,LinkedIn Poll,2025-12-14,,,
-John Smith,Operations Manager,Seaside Inn,85 rooms,Miami,FL,https://linkedin.com/in/johnsmith,john.smith@seaside.com,LinkedIn Poll,2025-12-14,,,
+name,title,company,company_size,location,linkedin_url,email,source,contacted_date,response,booked_date,deposit_status,notes,booking_email,booking_method,booking_subject
+Jane Doe,Director of Operations,Grand River Hotel,120 rooms,Portland,OR,https://linkedin.com/in/janedoe,jane.doe@grandriver.com,LinkedIn Poll,2025-12-14,,,,,,
+John Smith,Operations Manager,Seaside Inn,85 rooms,Miami,FL,https://linkedin.com/in/johnsmith,john.smith@seaside.com,LinkedIn Poll,2025-12-14,,,,,,
+Alex Rivera,Director of Operations,Harbor View Hotel,150 rooms,Seattle,WA,https://linkedin.com/in/alexrivera,,LinkedIn Outreach,2025-12-19,Yes,2025-12-20,none,Booked via email.,balentinetechsolutions@gmail.com,email,"Pilot: Harbor View Hotel"
