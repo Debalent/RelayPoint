@@ -5,3 +5,8 @@ alembic            # Migrations
 psycopg2-binary    # Postgres driver
 pydantic           # Data validation
 python-dotenv      # Load .env secrets
+lightgbm            # Gradient boosting framework
+scikit-learn        # ML utilities and metrics
+pandas              # Data manipulation
+numpy               # Numerical computing
+joblib              # Model serialization
