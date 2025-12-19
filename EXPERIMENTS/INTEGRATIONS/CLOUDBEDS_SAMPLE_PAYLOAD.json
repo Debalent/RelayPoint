@@ -1,0 +1,12 @@
+{
+  "event_type": "reservation.checkout",
+  "property_id": 1,
+  "reservation": {
+    "id": "res_12345",
+    "guest_name": "Jane Doe",
+    "check_in": "2025-12-20",
+    "check_out": "2025-12-22",
+    "room_id": "room_101",
+    "status": "checked_out"
+  }
+}
