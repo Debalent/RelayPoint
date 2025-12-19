@@ -1,0 +1,2 @@
+date,property_name,pilot_id,metric_occupancy,metric_checkins,metric_room_turns,housekeeping_tasks,maintenance_tasks,avg_time_per_task_minutes,staff_hours_scheduled,staff_hours_actual,tasks_completed,tasks_overdue,revenue_impact_estimate,predicted_staff,actual_staff,forecast_error,notes
+2025-12-22,Sample Hotel,PILOT-001,78,20,12,30,5,15,40,38,28,2,0.00,10,9,1,Initial pilot day
