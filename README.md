@@ -5,6 +5,9 @@
 
 ## Purpose & How It Works
 
+### Niche Focus: Hotel Operations
+RelayPoint Elite is currently focused on hotel operations — specifically housekeeping and maintenance workflows. This vertical focus lets us optimize integrations (PMS), mobile workflows (offline, photo uploads, quick confirmations), and operational analytics tailored to hotels. Read `EXPERIMENTS/STRATEGY/HOTEL_OPERATIONS_NICHE.md` for the full niche strategy and Phase 1 roadmap.
+
 RelayPoint Elite is a comprehensive platform designed to automate, streamline, and optimize business workflows for organizations of any size. It empowers teams to visually build, manage, and monitor workflows—integrating real-time collaboration, AI-powered optimization, and enterprise-grade security.
 
 ### How RelayPoint Works
