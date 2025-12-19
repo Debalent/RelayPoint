@@ -20,6 +20,7 @@ RelayPoint Elite is a comprehensive platform designed to automate, streamline, a
 
 - Visual Workflow Builder (drag-and-drop, 50+ components)
 - AI-Powered Optimization (intelligent routing, prioritization)
+- **Staffing Forecasting (pilot-ready)** — Predict daily/shift staffing needs using historical task, occupancy, and staff logs; includes a simple retrainable LightGBM model, manager-facing forecast card, and override workflow. See `backend/app/services/forecasting.py` and `EXPERIMENTS/ANALYTICS/ASSUMPTION_3_ANALYTICS_TEMPLATE.md` for details.
 - Real-time Collaboration (live co-editing, notifications)
 - Enterprise Security (SOC 2, GDPR, HIPAA, audit logs)
 - High Performance Auto-scaling (Kubernetes, Redis caching)
@@ -103,6 +104,14 @@ After a successful pilot, hardware provisioning can remain included in the licen
 - [Development Guide](DEVELOPMENT.md) - Setup and development workflow
 - [Code Quality Guide](CODE_QUALITY.md) - Code quality standards and tools
 - [IMPROVEMENTS.md] - Platform improvements and roadmap
+
+## Pilots & Outreach
+
+We run short, turnkey pilots (typically 6 weeks) focused on housekeeping and maintenance workflows. Pilot assets, outreach templates, and tracking sheets live in the `EXPERIMENTS/OUTREACH` and `EXPERIMENTS/ANALYTICS` folders.
+
+- Booking: Reply to outreach DMs or email **balentinetechsolutions@gmail.com** with subject **"Pilot: [Property Name]"** to request a 15‑minute workflow triage.
+- Tracking: Use `EXPERIMENTS/OUTREACH/PROSPECT_TEMPLATE.csv` and `EXPERIMENTS/ANALYTICS/ASSUMPTION_3_ANALYTICS_TEMPLATE.csv` to capture responses and KPI data during pilots.
+- Forecast validation: We collect daily/shift data during pilots to validate staffing forecasts and compute MAE/MAPE.
 
 ## Contact
 
