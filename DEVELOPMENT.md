@@ -104,8 +104,12 @@ Start the monitoring stack with:
 # Run database migrations
 ./dev.sh db:migrate
 
-# Seed the database with sample data
-./dev.sh db:seed
+# Apply Alembic migrations directly (alternative)
+cd backend
+alembic upgrade head
+
+# Seed the database with sample data (forecasting model example)
+python backend/scripts/seed_forecasting_data.py
 
 # Run linters
 ./dev.sh lint
@@ -119,7 +123,6 @@ Start the monitoring stack with:
 # Open a shell in the frontend container
 ./dev.sh shell:frontend
 ```
-
 ### Testing
 
 ```bash

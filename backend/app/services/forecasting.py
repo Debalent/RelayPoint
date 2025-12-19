@@ -135,23 +135,60 @@ def predict(model: Dict[str, Any], features: List[Dict[str, Any]]) -> List[Dict[
 def fetch_historical_dataset(db, property_id: int, role: str = "housekeeping") -> List[Dict[str, Any]]:
     """Attempt to build a simple historical dataset from available tables.
 
-    This function is permissive: if no specific tables are present it returns an empty list.
-    Implementers should expand this to query real occupancy, tasks, and staffing logs.
+    This function tries a few discovery strategies and returns an aggregated daily dataset:
+      - If `hospitality_tasks` exists, aggregate tasks per day for housekeeping
+      - Otherwise, attempt to inspect other likely tables (workflow_runs, usage logs)
+
+    Returns empty list if no data sources are found (caller should fallback to synthetic data).
     """
     try:
-        # Try to query an example tasks table if it exists (best-effort)
-        if hasattr(db, 'execute'):
-            # raw SQL fallback (example): assuming a tasks table with created_at and duration
-            rows = []
-            try:
-                q = "SELECT date::text as date, SUM(case when department='housekeeping' then 1 else 0 end) as tasks, COUNT(*) as staff_count, 0 as occupancy FROM hospitality_tasks WHERE property_id = :pid GROUP BY date::date ORDER BY date::date"
+        inspector = None
+        try:
+            from sqlalchemy import inspect
+            inspector = inspect(db.bind)
+        except Exception:
+            inspector = None
+
+        rows = []
+
+        # Strategy 1: hospitality_tasks
+        try:
+            if inspector and 'hospitality_tasks' in inspector.get_table_names():
+                q = "SELECT date::text as date, SUM(CASE WHEN department='housekeeping' THEN 1 ELSE 0 END) as tasks, COUNT(DISTINCT staff_id) as staff_count, 0 as occupancy FROM hospitality_tasks WHERE property_id = :pid GROUP BY date::date ORDER BY date::date"
                 res = db.execute(q, {"pid": property_id})
                 for r in res:
                     rows.append({"date": r["date"], "tasks": int(r["tasks"] or 0), "staff_count": int(r["staff_count"] or 0), "occupancy": 0})
-            except Exception:
-                # Table or column may not exist; return empty to fall back to synthetic
-                return []
-            return rows
+                if rows:
+                    return rows
+        except Exception:
+            # table might not exist or schema differs; continue
+            pass
+
+        # Strategy 2: workflow_runs or task logs
+        try:
+            if inspector and 'workflow_runs' in inspector.get_table_names():
+                q = "SELECT DATE(created_at)::text as date, SUM(CASE WHEN event_type='task' THEN 1 ELSE 0 END) as tasks, 0 as staff_count, 0 as occupancy FROM workflow_runs WHERE property_id = :pid GROUP BY DATE(created_at) ORDER BY DATE(created_at)"
+                res = db.execute(q, {"pid": property_id})
+                for r in res:
+                    rows.append({"date": r["date"], "tasks": int(r["tasks"] or 0), "staff_count": 0, "occupancy": 0})
+                if rows:
+                    return rows
+        except Exception:
+            pass
+
+        # Strategy 3: inspect known analytics tables (best-effort)
+        try:
+            if inspector and 'usage_stats' in inspector.get_table_names():
+                q = "SELECT date::text as date, tasks_count as tasks, staff_on_duty as staff_count, occupancy FROM usage_stats WHERE property_id = :pid ORDER BY date::date"
+                res = db.execute(q, {"pid": property_id})
+                for r in res:
+                    rows.append({"date": r["date"], "tasks": int(r.get("tasks") or 0), "staff_count": int(r.get("staff_count") or 0), "occupancy": int(r.get("occupancy") or 0)})
+                if rows:
+                    return rows
+        except Exception:
+            pass
+
+        return []
     except Exception:
         return []
 
