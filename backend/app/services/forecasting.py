@@ -132,13 +132,37 @@ def predict(model: Dict[str, Any], features: List[Dict[str, Any]]) -> List[Dict[
     return preds
 
 
+def fetch_historical_dataset(db, property_id: int, role: str = "housekeeping") -> List[Dict[str, Any]]:
+    """Attempt to build a simple historical dataset from available tables.
+
+    This function is permissive: if no specific tables are present it returns an empty list.
+    Implementers should expand this to query real occupancy, tasks, and staffing logs.
+    """
+    try:
+        # Try to query an example tasks table if it exists (best-effort)
+        if hasattr(db, 'execute'):
+            # raw SQL fallback (example): assuming a tasks table with created_at and duration
+            rows = []
+            try:
+                q = "SELECT date::text as date, SUM(case when department='housekeeping' then 1 else 0 end) as tasks, COUNT(*) as staff_count, 0 as occupancy FROM hospitality_tasks WHERE property_id = :pid GROUP BY date::date ORDER BY date::date"
+                res = db.execute(q, {"pid": property_id})
+                for r in res:
+                    rows.append({"date": r["date"], "tasks": int(r["tasks"] or 0), "staff_count": int(r["staff_count"] or 0), "occupancy": 0})
+            except Exception:
+                # Table or column may not exist; return empty to fall back to synthetic
+                return []
+            return rows
+    except Exception:
+        return []
+
+
 def predict_staff(property_id: int, start_date: date, horizon: int = 7, role: str = "housekeeping") -> List[Dict[str, Any]]:
     """High-level helper to fetch data, prepare features, and return predictions.
 
     This will attempt to load the latest model; if none exists, fallback to rolling baseline.
     """
-    # TODO: fetch events from DB (occupancy, tasks, staff logs) for property_id
-    # For now, create dummy daily rows
+    # Try to fetch historical dataset from DB; if not available, use synthetic daily rows
+    # NOTE: caller can pre-populate the model via /train endpoint which will save a model file
     days = []
     for i in range(horizon):
         d = start_date

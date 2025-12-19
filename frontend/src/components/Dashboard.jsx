@@ -2,7 +2,7 @@
 
 import React from 'react'
 import useAuth from '../hooks/useAuth'
-
+import ForecastCardWeb from './hospitality/ForecastCardWeb'
 export default function Dashboard() {
   const { logout } = useAuth()
 
@@ -15,6 +15,12 @@ export default function Dashboard() {
         This is your secure dashboard. Future modules will include automation workflows,
         real-time collaboration, and user analytics.
       </p>
+
+      {/* Forecast card integration */}
+      <div className="mb-6">
+        <ForecastCardWeb propertyId={1} role={'housekeeping'} />
+      </div>
+
       <button
         onClick={logout}
         className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"

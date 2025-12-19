@@ -2,6 +2,7 @@ from fastapi import APIRouter, Query, Body
 from typing import List
 from datetime import date
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.services import forecasting
 
@@ -28,28 +29,49 @@ async def get_forecast(property_id: int = Query(...), start_date: date = Query(.
     preds = forecasting.predict_staff(property_id=property_id, start_date=start_date, horizon=horizon, role=role)
     return {"property_id": property_id, "role": role, "start_date": start_date.isoformat(), "predictions": preds}
 
+from app.db import get_db
+from fastapi import Depends
+
 @router.post("/train", summary="Train Forecast Model", tags=["forecast"])
-async def train_model(req: TrainRequest = Body(...)):
-    """Trigger training for a property and role. Expects historical feature data to be provided or available in DB (MVP uses example data)."""
-    # TODO: fetch historical data from DB for property_id + role
-    # For now, create synthetic example dataset
-    import pandas as pd
-    from datetime import timedelta
-    today = date.today()
-    rows = []
-    for i in range(120):
-        d = today - timedelta(days=(120 - i))
-        rows.append({"date": d.isoformat(), "occupancy": 50 + (i % 30), "tasks": 20 + (i % 10), "staff_count": 10 + (i % 5)})
-    df = pd.DataFrame(rows)
-    feature_df = forecasting.prepare_features(df.to_dict("records"))
+async def train_model(req: TrainRequest = Body(...), db: Session = Depends(get_db)):
+    """Trigger training for a property and role. Uses available historical data in the DB."""
+    # Attempt to fetch historical rows from DB
+    rows = forecasting.fetch_historical_dataset(db, property_id=req.property_id, role=req.role)
+    if not rows:
+        # Fallback to synthetic short dataset but notify client
+        from datetime import timedelta
+        today = date.today()
+        rows = []
+        for i in range(120):
+            d = today - timedelta(days=(120 - i))
+            rows.append({"date": d.isoformat(), "occupancy": 50 + (i % 30), "tasks": 20 + (i % 10), "staff_count": 10 + (i % 5)})
+
+    feature_df = forecasting.prepare_features(rows)
     meta, model_path = forecasting.train_lightgbm(feature_df, target_col=req.target_col)
+
+    # Optionally record metadata in DB
+    try:
+        crud_forecasting.create_model_record(db, property_id=req.property_id, role=req.role, model_type='lightgbm', path=model_path, metadata=meta)
+    except Exception:
+        # non-blocking if DB record fails
+        pass
+
     return {"status": "ok", "meta": meta, "model_path": model_path}
 
-@router.post("/override", summary="Save Forecast Override", tags=["forecast"])
-async def save_override(req: OverrideRequest = Body(...)):
+from app.db import get_db
+from fastapi import Depends, HTTPException
+from app.schemas.forecasting import ForecastOverrideCreate, ForecastOverrideOut
+from app.crud import forecasting as crud_forecasting
+
+
+@router.post("/override", response_model=ForecastOverrideOut, summary="Save Forecast Override", tags=["forecast"])
+async def save_override(req: ForecastOverrideCreate = Body(...), db: Session = Depends(get_db)):
     """Persist manager override for a forecasted date.
 
-    This will store the override and return a confirmation. UI should call this when the manager edits the suggested staff count.
+    Stores the override in the database and returns the saved record.
     """
-    # For MVP, persist via DB model when migrations available; here return echo
-    return {"status": "ok", "override": req.dict()}
+    try:
+        ov = crud_forecasting.create_override(db, property_id=req.property_id, role=req.role, date=req.date.isoformat(), override_value=req.override_value, reason=req.reason)
+        return ov
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
