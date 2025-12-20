@@ -32,16 +32,23 @@ async def cloudbeds_webhook(req: Request, db: Session = Depends(get_db)):
     event_type = payload.get('event_type')
     property_id = payload.get('property_id')
     try:
+        res = payload.get('reservation', {})
         if event_type == 'reservation.created' or event_type == 'reservation.updated':
-            res = payload.get('reservation', {})
             crud.upsert_reservation(db, property_id=property_id, reservation_id=str(res.get('id')), guest_name=res.get('guest_name'), check_in=res.get('check_in'), check_out=res.get('check_out'), room_id=res.get('room_id'), status=res.get('status'), raw=res)
         elif event_type == 'room.updated':
             room = payload.get('room', {})
             crud.upsert_room(db, property_id=property_id, room_id=str(room.get('id')), room_number=room.get('number'), room_type=room.get('type'), metadata=room)
         # On checkout event, create a turnover task (use existing task creation service)
         if event_type == 'reservation.checkout':
-            # Minimal: emit a task creation event or call internal service
-            pass
+            # Create a turnover task using task creator service
+            # Map cloud room id to property room id if mapping exists
+            from app.crud import cloudbeds_mapping as mapping_crud
+            from app.services.task_creator import create_turnover_task
+            mapping = mapping_crud.get_mapping(db, property_id=property_id, cloud_room_id=res.get('room_id'))
+            room_number = mapping.property_room_id if mapping else res.get('room_id')
+            # create turnover task (persisted and broadcast)
+            await create_turnover_task(db=db, property_id=property_id, room_number=room_number, room_id=res.get('room_id'))
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     return {'status': 'ok'}

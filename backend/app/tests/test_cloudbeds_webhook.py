@@ -22,3 +22,12 @@ def test_webhook_listener():
     assert res.status_code == 200
     body = res.json()
     assert body.get('status') == 'ok'
+
+    # Verify task was persisted to DB
+    from app.db import SessionLocal
+    from app.models.task import Task
+    db = SessionLocal()
+    task = db.query(Task).filter(Task.guest_room == 'room_101').first()
+    assert task is not None
+    assert 'Turnover' in task.title
+    db.close()
