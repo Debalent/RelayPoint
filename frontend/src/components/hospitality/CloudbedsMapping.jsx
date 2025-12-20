@@ -6,7 +6,6 @@ export default function CloudbedsMapping({propertyId=1}){
 
   useEffect(()=>{fetchRooms()}, [])
   async function fetchRooms(){
-    // For PoC this will use a placeholder endpoint
     try{
       const res = await fetch(`/api/v1/integrations/cloudbeds/rooms?property_id=${propertyId}`)
       const data = await res.json()
@@ -14,9 +13,11 @@ export default function CloudbedsMapping({propertyId=1}){
     }catch(e){console.warn(e)}
   }
 
-  function saveMapping(cloudRoomId, propertyRoomId){
-    setMapping(m => ({...m, [cloudRoomId]: propertyRoomId}))
-    // TODO: POST mapping to API
+  async function saveMapping(cloudRoomId, propertyRoomId){
+    try{
+      await fetch('/api/v1/integrations/cloudbeds/map', {method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({property_id: propertyId, cloud_room_id: cloudRoomId, property_room_id: propertyRoomId})})
+      setMapping(m => ({...m, [cloudRoomId]: propertyRoomId}))
+    }catch(e){console.warn(e)}
   }
 
   return (

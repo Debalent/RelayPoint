@@ -56,6 +56,14 @@ async def lifespan(app: FastAPI):
     # Create database tables
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    # Start background retrain loop (non-blocking)
+    try:
+        import asyncio
+        from app.services import forecasting_scheduler
+        asyncio.create_task(forecasting_scheduler.start_retrain_loop())
+    except Exception as e:
+        logger.warning(f"Failed to start forecasting retrain loop: {e}")
     
     yield
     

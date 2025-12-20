@@ -3,6 +3,7 @@
 import React from 'react'
 import useAuth from '../hooks/useAuth'
 import ForecastCardWeb from './hospitality/ForecastCardWeb'
+import ForecastAdmin from './hospitality/ForecastAdmin'
 export default function Dashboard() {
   const { logout } = useAuth()
 
@@ -19,6 +20,11 @@ export default function Dashboard() {
       {/* Forecast card integration */}
       <div className="mb-6">
         <ForecastCardWeb propertyId={1} role={'housekeeping'} />
+      </div>
+
+      {/* Admin models (visible to admins) */}
+      <div className="mb-6">
+        <ForecastAdmin />
       </div>
 
       <button
