@@ -1,11 +1,12 @@
 RelayPoint — 6‑Week Pilot Summary
 
 Objective
-- Reduce average room turnover time and reduce manager firefighting time by automating checkout → turnover workflows and providing basic KPI visibility.
+- Reduce average room turnover time and reduce manager firefighting time by automating checkout → turnover workflows, consolidating communications and tasking into a single system, and providing clear KPI visibility.
 
 Scope
 - Integration: listen to PMS checkout events (Cloudbeds PoC) for a subset of rooms/floors.
 - Automation: auto‑create turnover tasks and route them to assigned housekeepers; push real‑time notifications.
+- Consolidation: unify notifications, in‑app messaging and task workflows so staff do not need multiple separate tools.
 - Reporting: weekly KPI snapshot showing avg turnover time, % on‑SLA, and manager time estimates.
 
 Duration & Setup
