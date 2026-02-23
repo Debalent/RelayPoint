@@ -2,7 +2,7 @@
   "name": "relaypoint-elite-frontend",
   "version": "2.0.0",
   "private": true,
-  "homepage": "https://YOUR_GITHUB_USERNAME.github.io/RelayPoint",
+  "homepage": "https://debalent.github.io/RelayPoint",
   "description": "Enterprise AI-Powered Workflow Automation Platform Frontend - Cross-Platform",
   "main": "index.js",
   "dependencies": {
