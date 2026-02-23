@@ -1,24 +1,44 @@
 import React from 'react';
-import { useTheme } from '../../hooks/useTheme';
-// Import both versions of the logo
-import lightLogo from '../../assets/relaypoint-logo-light.png';
-import darkLogo from '../../assets/relaypoint-logo-dark.png';
+import logoFile from '../../assets/relaypoint-logo.png';
+import iconFile from '../../assets/relaypoint-icon.png';
 
 /**
- * Logo component that switches
- * between light & dark assets based on theme.
- * Placed in header/navigation so it shows on every tab.
+ * Logo component for RelayPoint.
+ *
+ * Props:
+ *   variant  - 'full' (default) shows the full logo wordmark
+ *              'icon' shows just the app icon (square, for collapsed sidebars)
+ *   height   - CSS height string, default '36px'
+ *   style    - additional inline styles
+ *
+ * The logo is displayed inside a white pill container so it reads clearly
+ * on any background (dark navy UI or light pages).
  */
-export default function Logo({ className = 'h-10 w-auto' }) {
-  const [theme] = useTheme();
-  const isDark = theme === 'dark';
+export default function Logo({ variant = 'full', height = '36px', style = {}, className = '' }) {
+  const src = variant === 'icon' ? iconFile : logoFile;
+  const alt = 'RelayPoint';
 
   return (
-    <img
-      src={isDark ? darkLogo : lightLogo}      // choose appropriate asset
-      alt="RelayPoint Logo"
-      className={className}                     // allow sizing via props
-      loading="eager"                           // ensure logo loads immediately
-    />
+    <span
+      className={`rp-logo-wrap ${className}`}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(255,255,255,0.96)',
+        borderRadius: variant === 'icon' ? '10px' : '8px',
+        padding: variant === 'icon' ? '4px' : '4px 10px',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.18)',
+        ...style,
+      }}
+    >
+      <img
+        src={src}
+        alt={alt}
+        style={{ height, width: 'auto', display: 'block' }}
+        loading="eager"
+        draggable={false}
+      />
+    </span>
   );
 }

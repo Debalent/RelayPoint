@@ -16,9 +16,9 @@ tiktoken==0.5.2
 numpy==1.24.3
 pandas==2.0.3
 
-# Redis for caching and session management
+# Redis for caching and session management (Enterprise features)
 redis==5.0.1
-aioredis==2.0.1
+redis[hiredis]==5.0.1
 
 # Background task processing
 celery==5.3.4

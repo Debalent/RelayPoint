@@ -2,6 +2,7 @@
   "name": "relaypoint-elite-frontend",
   "version": "2.0.0",
   "private": true,
+  "homepage": "https://YOUR_GITHUB_USERNAME.github.io/RelayPoint",
   "description": "Enterprise AI-Powered Workflow Automation Platform Frontend - Cross-Platform",
   "main": "index.js",
   "dependencies": {
@@ -14,6 +15,7 @@
     "@expo/metro-runtime": "~3.1.1",
     "@testing-library/react-native": "^12.4.3",
     "@testing-library/jest-dom": "^6.6.3",
+    "react-test-renderer": "18.2.0",
     "web-vitals": "^2.1.4",
     
     "@types/node": "^20.10.0",
@@ -46,6 +48,7 @@
     "react-native-svg": "14.1.0",
     "react-native-svg-charts": "^5.4.0",
     "victory-native": "^36.9.2",
+    "expo-linear-gradient": "~13.0.2",
     
     "react-native-reanimated": "~3.6.1",
     
@@ -84,7 +87,8 @@
     "chromatic": "^7.6.0",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.11"
+    "tailwindcss": "^4.1.11",
+    "gh-pages": "^6.1.1"
   },
   "scripts": {
     "start": "expo start",
@@ -92,6 +96,8 @@
     "start:ios": "expo start --ios",
     "start:android": "expo start --android",
     "build:web": "expo export:web",
+    "predeploy": "npm run build:web",
+    "deploy": "gh-pages -d web-build",
     "build:ios": "eas build --platform ios",
     "build:android": "eas build --platform android",
     "test": "jest",

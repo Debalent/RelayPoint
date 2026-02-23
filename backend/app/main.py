@@ -1,19 +1,27 @@
 # backend/app/main.py
+# RelayPoint Enterprise - Production-Ready SaaS Platform
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import structlog
 import sentry_sdk
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from prometheus_client import make_asgi_app
+import time
 
 from app.core.config import settings
 from app.api.v1.api import router as api_v1_router
 from app.core.websocket_manager import WebSocketManager
 from app.core.database import engine
 from app.models import Base
+
+# Enterprise features
+from app.middleware.rate_limiter import EnterpriseRateLimiter
+from app.core.cache import enterprise_cache
+from app.core.monitoring import performance_monitor, api_requests_total, api_request_duration
 
 # Configure structured logging
 structlog.configure(
@@ -50,8 +58,41 @@ websocket_manager = WebSocketManager()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan management"""
-    logger.info("Starting RelayPoint API", version=settings.APP_VERSION)
+    """Application lifespan management with enterprise features"""
+    logger.info("Starting RelayPoint Enterprise API", version=settings.API_V1_STR, environment=settings.ENVIRONMENT)
+    
+    # Initialize enterprise cache
+    try:
+        await enterprise_cache.connect()
+        logger.info("Enterprise cache initialized")
+    except Exception as e:
+        logger.error("Failed to initialize cache", error=str(e))
+    
+    # Initialize rate limiter
+    try:
+        rate_limiter = app.state.rate_limiter
+        await rate_limiter.startup()
+        logger.info("Rate limiter initialized")
+    except Exception as e:
+        logger.error("Failed to initialize rate limiter", error=str(e))
+    
+    # Register health checks
+    async def check_database():
+        try:
+            async with engine.connect() as conn:
+                await conn.execute("SELECT 1")
+            return True
+        except:
+            return False
+    
+    async def check_redis():
+        try:
+            return await enterprise_cache.redis_client.ping()
+        except:
+            return False
+    
+    performance_monitor.register_health_check("database", check_database)
+    performance_monitor.register_health_check("cache", check_redis)
     
     # Create database tables
     async with engine.begin() as conn:
@@ -65,9 +106,16 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Failed to start forecasting retrain loop: {e}")
     
+    logger.info("RelayPoint Enterprise API started successfully")
     yield
     
-    logger.info("Shutting down RelayPoint API")
+    # Cleanup
+    logger.info("Shutting down RelayPoint Enterprise API")
+    try:
+        await enterprise_cache.disconnect()
+        await app.state.rate_limiter.shutdown()
+    except Exception as e:
+        logger.error("Shutdown error", error=str(e))
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -200,6 +248,54 @@ app = FastAPI(
         "displayRequestDuration": True,
         "filter": True,
         "tryItOutEnabled": True,
+    },
+    contact={
+        "name": "Balentine Tech Solutions - Enterprise Support",
+        "url": "https://balentinetech.com/support",
+        "email": "enterprise@balentinetech.com",
+    },
+    license_info={
+        "name": "Commercial License",
+        "url": "https://relaypoint.ai/license",
+    },
+)
+
+# Initialize enterprise rate limiter
+rate_limiter = EnterpriseRateLimiter(app, redis_url=settings.REDIS_URL if hasattr(settings, 'REDIS_URL') else "redis://localhost:6379")
+app.state.rate_limiter = rate_limiter
+app.add_middleware(EnterpriseRateLimiter, redis_url=settings.REDIS_URL if hasattr(settings, 'REDIS_URL') else "redis://localhost:6379")
+
+# Add performance monitoring middleware
+@app.middleware("http")
+async def track_performance(request: Request, call_next):
+    \"\"\"Track API performance metrics\"\"\"
+    start_time = time.time()
+    
+    # Get tenant ID from request (from JWT or header)
+    tenant_id = request.headers.get("X-Tenant-ID", "unknown")
+    
+    try:
+        response = await call_next(request)
+        status_code = response.status_code
+    except Exception as e:
+        status_code = 500
+        raise
+    finally:
+        # Track metrics
+        duration = time.time() - start_time
+        api_requests_total.labels(
+            method=request.method,
+            endpoint=request.url.path,
+            status_code=status_code,
+            tenant_id=tenant_id
+        ).inc()
+        api_request_duration.labels(
+            method=request.method,
+            endpoint=request.url.path,
+            tenant_id=tenant_id
+        ).observe(duration)
+    
+    return response
     },
     contact={
         "name": "RelayPoint Support",

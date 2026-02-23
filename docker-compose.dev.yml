@@ -24,17 +24,17 @@ services:
       timeout: 5s
       retries: 3
 
-  # Redis Cache & Session Store
+  # Redis Cache & Session Store (Enterprise Features)
   redis:
     image: redis:7-alpine
     container_name: relaypoint_redis_dev
-    command: redis-server --appendonly yes --requirepass devpassword
+    command: redis-server --appendonly yes
     volumes:
       - redis_data_dev:/data
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "devpassword", "ping"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -52,10 +52,15 @@ services:
       - ENVIRONMENT=development
       - DEBUG=true
       - DATABASE_URL=postgresql://relaypoint:devpassword@postgres:5432/relaypoint_elite
-      - REDIS_URL=redis://:devpassword@redis:6379/0
-      - CELERY_BROKER_URL=redis://:devpassword@redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://:devpassword@redis:6379/2
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
       - SECRET_KEY=dev_secret_key_change_me_in_production
+      - JWT_SECRET=dev_jwt_secret_change_me_in_production
+      # Enterprise Features
+      - ENABLE_RATE_LIMITING=true
+      - ENABLE_CACHING=true
+      - ENABLE_MULTI_TENANCY=true
       # Add dummy API keys for development (or use .env file)
       - OPENAI_API_KEY=sk-dummy-key-for-development
       - ANTHROPIC_API_KEY=dummy-key-for-development

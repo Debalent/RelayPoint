@@ -1,38 +1,51 @@
-.App {
-  text-align: center;
-}
+/* App.css — RelayPoint
+ * Global app-level overrides & responsive sidebar toggle
+ * Main design system lives in index.css
+ */
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* KPI grid responsive */
+@media (max-width: 1200px) {
+  [style*="grid-template-columns: repeat(4, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@media (max-width: 640px) {
+  [style*="grid-template-columns: repeat(4, 1fr)"],
+  [style*="grid-template-columns: repeat(2, 1fr)"] {
+    grid-template-columns: 1fr !important;
   }
-  to {
-    transform: rotate(360deg);
+}
+
+/* Dashboard main grid responsive */
+@media (max-width: 1024px) {
+  [style*="grid-template-columns: 1fr 320px"] {
+    grid-template-columns: 1fr !important;
+  }
+  [style*="grid-template-columns: repeat(2, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Mobile hamburger visible */
+@media (max-width: 1024px) {
+  .rp-topbar [aria-label="Toggle menu"] {
+    display: flex !important;
+  }
+}
+
+/* Ensure login hero hidden on mobile but form centered */
+@media (max-width: 1024px) {
+  .rp-login-hero { display: none !important; }
+  .rp-login-page {
+    background: var(--rp-gradient-dark);
+    justify-content: center;
+    align-items: center;
+  }
+  .rp-login-form-panel {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh !important;
+    border-left: none !important;
   }
 }
