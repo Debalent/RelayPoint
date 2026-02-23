@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy static content to Pages
 
 on:
   push:
@@ -6,29 +6,24 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/deploy-pages.yml'
-  workflow_dispatch:   # Allow manual trigger from Actions tab
+  workflow_dispatch:
 
-# Grant write permission to deploy to Pages
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
-# Only one deploy can run at a time; cancel in-progress if a newer push arrives
 concurrency:
-  group: pages-deploy
-  cancel-in-progress: true
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      # ── 1. Checkout ──────────────────────────────────────────────────────────
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # ── 2. Node setup with caching ───────────────────────────────────────────
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -36,42 +31,32 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      # ── 3. Install dependencies ──────────────────────────────────────────────
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
-      # ── 4. Derive base URL from repo name ───────────────────────────────────
-      #   Produces e.g. /RelayPoint for a repo at github.com/acme/RelayPoint
-      - name: Set base URL
-        id: base_url
-        run: echo "BASE_URL=/${GITHUB_REPOSITORY#*/}" >> "$GITHUB_ENV"
-
-      # ── 5. Build Expo web export ─────────────────────────────────────────────
       - name: Build web export
         working-directory: ./frontend
-        env:
-          # Override app.json baseUrl at build time to match actual repo name
-          EXPO_PUBLIC_BASE_URL: ${{ env.BASE_URL }}
         run: npx expo export:web
 
-      # ── 6. Fix asset paths in HTML (ensure correct base path) ───────────────
-      - name: Inject .nojekyll
+      - name: Add .nojekyll
         run: touch ./frontend/web-build/.nojekyll
 
-      # ── 7. Copy 404.html for SPA client-side routing ────────────────────────
       - name: Copy 404.html for SPA routing
         run: cp ./frontend/public/404.html ./frontend/web-build/404.html
 
-      # ── 8. Deploy to gh-pages branch ────────────────────────────────────────
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./frontend/web-build
-          publish_branch: gh-pages
-          commit_message: "deploy: ${{ github.sha }} — ${{ github.event.head_commit.message }}"
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
-          force_orphan: false    # Keep gh-pages history
-          enable_jekyll: false   # .nojekyll is set, this is belt-and-suspenders
+          path: ./frontend/web-build
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
