@@ -15,7 +15,7 @@
       "**/*"
     ],
     "web": {
-      "bundler": "webpack",
+      "bundler": "metro",
       "output": "static",
       "baseUrl": "/RelayPoint",
       "favicon": "./public/favicon.ico",
