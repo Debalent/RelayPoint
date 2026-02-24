@@ -16,7 +16,7 @@
     ],
     "web": {
       "bundler": "metro",
-      "output": "static",
+      "output": "single",
       "baseUrl": "/RelayPoint",
       "favicon": "./public/favicon.ico",
       "name": "RelayPoint",
