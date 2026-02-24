@@ -163,44 +163,51 @@ export default function Sidebar({ activeSection, onNavigate, onLogout, userEmail
     ? userEmail.slice(0, 2).toUpperCase()
     : 'RP'
 
+  const [userMenuOpen, setUserMenuOpen] = React.useState(false)
+
   return (
     <aside className={`rp-sidebar${collapsed ? ' collapsed' : ''}${className ? ' ' + className : ''}`}>
-      {/* Logo */}
+
+      {/* ── Logo + collapse toggle ─────────────────────────────────────── */}
       <div className="rp-sidebar__logo">
         <div className="rp-logo-mark">R</div>
-        {!collapsed && <span className="rp-logo-text">RelayPoint</span>}
+        {!collapsed && (
+          <span className="rp-logo-text">RelayPoint</span>
+        )}
+        <button
+          className="rp-icon-btn"
+          onClick={onToggleCollapse}
+          aria-label="Toggle sidebar"
+          style={{ marginLeft: 'auto', flexShrink: 0 }}
+        >
+          <IconChevron />
+        </button>
       </div>
 
-      {/* Navigation */}
-      <nav className="rp-sidebar__nav">
+      {/* ── Navigation ─────────────────────────────────────────────────── */}
+      <nav className="rp-sidebar__nav" role="navigation" aria-label="Main navigation">
         {NAV_ITEMS.map(({ section, items }) => (
           <div key={section} className="rp-nav-section">
             {!collapsed && (
               <div className="rp-nav-section__label">{section}</div>
             )}
-            {items.map(item => (
+            {items.map(({ id, label, badge }) => (
               <button
-                key={item.id}
-                className={`rp-nav-item${activeSection === item.id ? ' active' : ''}`}
-                onClick={() => onNavigate?.(item.id)}
-                title={collapsed ? item.label : undefined}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  width: '100%',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  color: 'inherit',
-                }}
+                key={id}
+                className={`rp-nav-item${activeSection === id ? ' active' : ''}`}
+                onClick={() => onNavigate && onNavigate(id)}
+                aria-current={activeSection === id ? 'page' : undefined}
+                title={collapsed ? label : undefined}
+                style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer' }}
               >
                 <span className="rp-nav-item__icon">
-                  {ICON_MAP[item.id]}
+                  {ICON_MAP[id] || <span style={{ opacity: 0.5 }}>◉</span>}
                 </span>
                 {!collapsed && (
                   <>
-                    <span style={{ flex: 1 }}>{item.label}</span>
-                    {item.badge && (
-                      <span className="rp-nav-item__badge">{item.badge}</span>
+                    <span style={{ flex: 1, fontSize: '0.875rem', fontWeight: 500 }}>{label}</span>
+                    {badge && (
+                      <span className="rp-nav-item__badge">{badge}</span>
                     )}
                   </>
                 )}
@@ -210,53 +217,37 @@ export default function Sidebar({ activeSection, onNavigate, onLogout, userEmail
         ))}
       </nav>
 
-      {/* Footer: user + collapse toggle */}
+      {/* ── Footer / User chip ─────────────────────────────────────────── */}
       <div className="rp-sidebar__footer">
-        <div className="rp-user-chip">
+        <div
+          className="rp-user-chip"
+          onClick={() => setUserMenuOpen(v => !v)}
+          aria-label="User menu"
+          role="button"
+          tabIndex={0}
+          onKeyDown={e => e.key === 'Enter' && setUserMenuOpen(v => !v)}
+        >
           <div className="rp-avatar">{initials}</div>
           {!collapsed && (
-            <div style={{ flex: 1, overflow: 'hidden' }}>
-              <div className="truncate text-sm fw-600" style={{ color: 'var(--rp-text-primary)' }}>
-                {userEmail || 'Hotel Manager'}
+            <>
+              <div style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="truncate fw-600 text-sm" style={{ color: 'var(--rp-text-primary)' }}>
+                  {userEmail || 'hotel@example.com'}
+                </div>
+                <div className="text-xs" style={{ color: 'var(--rp-text-muted)' }}>Hotel Staff</div>
               </div>
-              <div className="text-xs" style={{ color: 'var(--rp-text-muted)' }}>Admin</div>
-            </div>
-          )}
-          {!collapsed && (
-            <button
-              className="rp-icon-btn"
-              onClick={onLogout}
-              title="Sign out"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--rp-text-muted)' }}
-            >
-              <IconLogout />
-            </button>
+              <button
+                className="rp-icon-btn"
+                onClick={e => { e.stopPropagation(); onLogout && onLogout() }}
+                aria-label="Sign out"
+                title="Sign out"
+                style={{ flexShrink: 0 }}
+              >
+                <IconLogout />
+              </button>
+            </>
           )}
         </div>
-        <button
-          onClick={onToggleCollapse}
-          style={{
-            marginTop: '8px',
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: collapsed ? 'center' : 'flex-end',
-            padding: '6px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'var(--rp-text-muted)',
-            borderRadius: 'var(--r-sm)',
-            transition: 'color var(--t-fast)',
-          }}
-          onMouseEnter={e => e.currentTarget.style.color = 'var(--rp-text-primary)'}
-          onMouseLeave={e => e.currentTarget.style.color = 'var(--rp-text-muted)'}
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          <span style={{ transform: collapsed ? 'rotate(180deg)' : 'none', display: 'flex' }}>
-            <IconChevron />
-          </span>
-        </button>
       </div>
     </aside>
   )

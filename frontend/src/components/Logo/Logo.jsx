@@ -25,17 +25,17 @@ export default function Logo({ variant = 'full', height = '36px', style = {}, cl
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(255,255,255,0.96)',
-        borderRadius: variant === 'icon' ? '10px' : '8px',
-        padding: variant === 'icon' ? '4px' : '4px 10px',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.18)',
+        background: 'linear-gradient(90deg, #4A90E2, #9013FE)',
+        borderRadius: variant === 'icon' ? '12px' : '10px',
+        padding: variant === 'icon' ? '6px' : '6px 12px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         ...style,
       }}
     >
       <img
         src={src}
         alt={alt}
-        style={{ height, width: 'auto', display: 'block' }}
+        style={{ height, objectFit: 'contain' }}
         loading="eager"
         draggable={false}
       />

@@ -2,6 +2,7 @@
 // RelayPoint Web Shell — Premium enterprise layout
 
 import React, { useState } from 'react'
+import './index.css'   // ← design system (was missing — this was root cause of unstyled UI)
 import './App.css'
 import LoginForm from './components/LoginForm'
 import Dashboard from './components/Dashboard'

@@ -1,8 +1,80 @@
 // frontend/src/components/LoginForm.jsx
-// Premium split-screen login — RelayPoint
+// RelayPoint — Elite Login Page with Demo Mode
 
 import { useState } from 'react'
 import useAuth from '../hooks/useAuth'
+
+/* ── Injected keyframes & component-scoped styles ───────────────────────────── */
+const INJECTED_CSS = `
+  @keyframes rp-spin    { to { transform: rotate(360deg); } }
+  @keyframes rp-floatA  { 0%,100%{transform:translate(0,0) scale(1);opacity:.7;} 50%{transform:translate(30px,-20px) scale(1.08);opacity:1;} }
+  @keyframes rp-floatB  { 0%,100%{transform:translate(0,0);opacity:.5;} 50%{transform:translate(-20px,30px) scale(1.1);opacity:.85;} }
+  @keyframes rp-slideUp { from{opacity:0;transform:translateY(24px);} to{opacity:1;transform:translateY(0);} }
+  @keyframes rp-pulseDot{ 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(.75);opacity:.5;} }
+  @keyframes rp-shine   { 0%{background-position:-200% center;} to{background-position:200% center;} }
+  @keyframes rp-borderPulse { 0%,100%{box-shadow:0 0 0 0 rgba(16,128,208,0);} 50%{box-shadow:0 0 0 3px rgba(16,128,208,.35);} }
+  .rpl-demo-btn {
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;padding:14px 24px;
+    background:linear-gradient(135deg,rgba(16,128,208,.15),rgba(45,181,128,.12));
+    border:1px solid rgba(16,128,208,.35);border-radius:10px;
+    color:#60c4ff;font-size:.9375rem;font-weight:600;font-family:inherit;
+    cursor:pointer;transition:all .18s ease;
+    animation:rp-borderPulse 3s ease-in-out infinite;
+  }
+  .rpl-demo-btn:hover:not(:disabled) {
+    background:linear-gradient(135deg,rgba(16,128,208,.3),rgba(45,181,128,.22));
+    border-color:rgba(16,128,208,.8);color:#fff;
+    transform:translateY(-2px);box-shadow:0 8px 32px rgba(16,128,208,.35);
+    animation:none;
+  }
+  .rpl-demo-btn:disabled { opacity:.55;cursor:not-allowed;animation:none; }
+  .rpl-input {
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+    border-radius:10px;padding:13px 16px 13px 44px;
+    color:#f0f6ff;font-family:inherit;font-size:.9375rem;
+    width:100%;outline:none;transition:all .18s ease;-webkit-appearance:none;
+  }
+  .rpl-input::-webkit-input-placeholder{color:rgba(255,255,255,.3);}
+  .rpl-input::placeholder{color:rgba(255,255,255,.3);}
+  .rpl-input:hover{border-color:rgba(255,255,255,.2);}
+  .rpl-input:focus{border-color:#1080D0;background:rgba(16,128,208,.1);box-shadow:0 0 0 3px rgba(16,128,208,.2);}
+  .rpl-primary-btn {
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;padding:14px 24px;
+    background:linear-gradient(90deg,#003080,#1080D0,#2DB580,#1080D0,#003080);
+    background-size:300% auto;
+    border:none;border-radius:10px;
+    color:#fff;font-size:.9375rem;font-weight:700;font-family:inherit;
+    cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;
+    box-shadow:0 4px 20px rgba(16,128,208,.5);
+    animation:rp-shine 6s linear infinite;
+  }
+  .rpl-primary-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 32px rgba(16,128,208,.65);}
+  .rpl-primary-btn:active:not(:disabled){transform:translateY(0);}
+  .rpl-primary-btn:disabled{opacity:.45;cursor:not-allowed;animation:none;}
+  .rpl-sso-btn {
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    width:100%;padding:13px 24px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+    border-radius:10px;color:#c8d8ec;font-size:.9375rem;font-weight:500;font-family:inherit;
+    cursor:pointer;transition:all .18s ease;
+  }
+  .rpl-sso-btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;}
+  .rpl-stat-card {
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+    backdrop-filter:blur(12px);border-radius:14px;padding:16px;text-align:center;
+    transition:all .18s ease;
+  }
+  .rpl-stat-card:hover{background:rgba(255,255,255,.08);border-color:rgba(16,128,208,.35);transform:translateY(-2px);}
+  .rpl-feature-tick {
+    width:22px;height:22px;border-radius:50%;flex-shrink:0;
+    background:rgba(16,128,208,.18);border:1px solid rgba(16,128,208,.35);
+    display:flex;align-items:center;justify-content:center;color:#60c4ff;
+  }
+  .rpl-pw-toggle { position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.3);cursor:pointer;padding:4px;display:flex;transition:color .15s; }
+  .rpl-pw-toggle:hover{color:rgba(255,255,255,.7);}
+`
 
 /* ── SVG Icons ─────────────────────────────────────────────────────────────── */
 function IconMail() {
@@ -58,37 +130,37 @@ function IconSpinner() {
   )
 }
 
-/* ── Feature bullets for hero panel ────────────────────────────────────────── */
+/* ── Data ───────────────────────────────────────────────────────────────────── */
 const FEATURES = [
-  'Real-time task coordination across all departments',
-  'AI-powered staff forecasting & scheduling',
-  'Seamless Cloudbeds & PMS integration',
-  'Live escalations with smart priority routing',
+  'Real-time coordination across all hotel departments',
+  'AI-powered staff forecasting & smart scheduling',
+  'Seamless Cloudbeds & PMS two-way integration',
+  'Live escalation routing with priority intelligence',
 ]
 
-/* ── Stats for hero panel ───────────────────────────────────────────────────── */
 const HERO_STATS = [
   { value: '92%', label: 'Task completion rate' },
-  { value: '3.2×', label: 'Faster escalation resolution' },
-  { value: '40min', label: 'Saved per staff member/day' },
+  { value: '3.2×', label: 'Faster resolution' },
+  { value: '40min', label: 'Saved per staff/day' },
 ]
 
 /* ═════════════════════════════════════════════════════════════════════════════
    LoginForm Component
    ═════════════════════════════════════════════════════════════════════════════ */
 export default function LoginForm() {
-  const [email, setEmail]           = useState('')
-  const [password, setPassword]     = useState('')
-  const [showPassword, setShowPass] = useState(false)
-  const [error, setError]           = useState('')
-  const [loading, setLoading]       = useState(false)
+  const [email, setEmail]             = useState('')
+  const [password, setPassword]       = useState('')
+  const [showPassword, setShowPass]   = useState(false)
+  const [error, setError]             = useState('')
+  const [loading, setLoading]         = useState(false)
+  const [demoLoading, setDemoLoading] = useState(false)
   const { login } = useAuth()
 
+  /* ── Real API login ───────────────────────────────────────────────────── */
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     try {
       const response = await fetch('http://localhost:8000/api/v1/auth/login', {
         method: 'POST',
@@ -105,53 +177,43 @@ export default function LoginForm() {
     }
   }
 
+  /* ── Demo bypass (no backend needed) ─────────────────────────────────── */
+  const handleDemo = async () => {
+    setDemoLoading(true)
+    await new Promise(r => setTimeout(r, 800)) // brief loading UX
+    login('demo-token-relaypoint-preview')
+  }
+
+  /* ── Shared style objects ────────────────────────────────────────────────── */
+  const bg = { position:'absolute', borderRadius:'50%', pointerEvents:'none', filter:'blur(2px)' }
+
   return (
     <>
+      <style>{INJECTED_CSS}</style>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes gradFlow {
-          0%,100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
         .hero-bg-orb-1 {
           position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0;
-          width: 400px; height: 400px; top: -100px; right: -80px;
-          background: radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%);
-          animation: pulse 8s ease-in-out infinite;
+          width: 480px; height: 480px; top: -80px; right: -60px;
+          background: radial-gradient(circle, rgba(16,128,208,0.22) 0%, transparent 68%);
+          animation: rp-floatA 12s ease-in-out infinite;
         }
         .hero-bg-orb-2 {
           position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none; z-index: 0;
-          width: 300px; height: 300px; bottom: -80px; left: -60px;
-          background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%);
-          animation: pulse 10s ease-in-out infinite 2s;
+          width: 360px; height: 360px; bottom: -80px; left: -60px;
+          background: radial-gradient(circle, rgba(45,181,128,0.18) 0%, transparent 68%);
+          animation: rp-floatB 16s ease-in-out infinite 2s;
         }
         .hero-bg-grid {
-          position: absolute; inset: 0; z-index: 0; opacity: 0.04; pointer-events: none;
-          background-image: linear-gradient(var(--rp-border) 1px, transparent 1px),
-                            linear-gradient(90deg, var(--rp-border) 1px, transparent 1px);
+          position: absolute; inset: 0; z-index: 0; opacity: 0.03; pointer-events: none;
+          background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
           background-size: 48px 48px;
         }
-        @keyframes pulse {
-          0%,100%{opacity:0.8;transform:scale(1);}
-          50%{opacity:1;transform:scale(1.1);}
-        }
-        .input-icon-wrap {
-          position: relative;
-        }
-        .input-icon-wrap .icon-left {
+        .input-icon-left {
           position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-          color: var(--rp-text-muted); display: flex; pointer-events: none;
+          color: rgba(255,255,255,0.3); display: flex; pointer-events: none;
         }
-        .input-icon-wrap .rp-input {
-          padding-left: 42px;
-        }
-        .input-icon-wrap .icon-right {
-          position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-          color: var(--rp-text-muted); display: flex; cursor: pointer;
-          background: none; border: none; padding: 4px;
-          transition: color var(--t-fast);
-        }
-        .input-icon-wrap .icon-right:hover { color: var(--rp-text-primary); }
       `}</style>
 
       <div className="rp-login-page">
@@ -164,158 +226,161 @@ export default function LoginForm() {
 
           {/* Logo */}
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-12)' }}>
-              <div className="rp-logo-mark" style={{ width: 44, height: 44, fontSize: '1.2rem' }}>R</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 64 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                background: 'linear-gradient(135deg, #003080 0%, #1080D0 55%, #2DB580 100%)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontWeight: 900, fontSize: '1.2rem', color: '#fff',
+                boxShadow: '0 4px 24px rgba(16,128,208,0.5)',
+              }}>R</div>
               <div>
                 <div style={{
-                  fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.25rem',
-                  letterSpacing: '-0.03em',
-                  background: 'var(--rp-gradient-brand)',
+                  fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                  fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.03em',
+                  background: 'linear-gradient(90deg, #f0f6ff, #60c4ff)',
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
                 }}>RelayPoint</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--rp-text-muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                   Hospitality OS
                 </div>
               </div>
             </div>
 
             {/* Headline */}
-            <h1 style={{ marginBottom: 'var(--space-5)', maxWidth: 480, lineHeight: 1.1 }}>
+            <h1 style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 800, fontSize: 'clamp(2rem, 3.5vw, 2.8rem)',
+              lineHeight: 1.1, letterSpacing: '-0.03em',
+              color: '#f0f6ff', margin: '0 0 20px',
+            }}>
               Every team in sync.{' '}
               <span style={{
-                background: 'var(--rp-gradient-brand)',
+                background: 'linear-gradient(90deg, #60c4ff, #2DB580)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               }}>Every guest delighted.</span>
             </h1>
-            <p style={{ color: 'var(--rp-text-secondary)', fontSize: '1.0625rem', maxWidth: 440, marginBottom: 'var(--space-10)' }}>
+            <p style={{ fontSize: '1.0625rem', color: 'rgba(240,246,255,0.6)', maxWidth: 440, lineHeight: 1.75, margin: '0 0 40px' }}>
               AI-powered workflow automation that keeps housekeeping, maintenance, F&amp;B and front desk perfectly coordinated — in real time.
             </p>
 
             {/* Features list */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', marginBottom: 'var(--space-10)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 48 }}>
               {FEATURES.map((f, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                  <span style={{
-                    width: 22, height: 22, borderRadius: 'var(--r-full)',
-                    background: 'rgba(99,102,241,0.18)',
-                    border: '1px solid rgba(99,102,241,0.3)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0, color: 'var(--rp-indigo)',
-                  }}>
-                    <IconCheck />
-                  </span>
-                  <span style={{ fontSize: '0.9rem', color: 'var(--rp-text-secondary)' }}>{f}</span>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span className="rpl-feature-tick"><IconCheck /></span>
+                  <span style={{ fontSize: '0.9rem', color: 'rgba(240,246,255,0.65)' }}>{f}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Stats row */}
+          {/* Testimonial + Stats */}
           <div style={{ position: 'relative', zIndex: 1 }}>
-            {/* Testimonial card */}
-            <div className="rp-login-testimonial" style={{ marginBottom: 'var(--space-6)' }}>
-              <p style={{ fontSize: '0.9375rem', fontStyle: 'italic', color: 'var(--rp-text-secondary)', marginBottom: 'var(--space-4)', lineHeight: 1.7 }}>
+            <div style={{
+              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(16px)', borderRadius: 16, padding: 24, marginBottom: 24,
+            }}>
+              <p style={{ fontSize: '0.9375rem', fontStyle: 'italic', color: 'rgba(240,246,255,0.7)', lineHeight: 1.75, marginBottom: 16 }}>
                 "RelayPoint cut our room-ready time by 22 minutes and virtually eliminated missed escalations. Our TripAdvisor score jumped a full point in 6 weeks."
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                <div className="rp-avatar" style={{ background: 'var(--rp-gradient-warm)' }}>AK</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.8rem', color: '#fff', flexShrink: 0 }}>AK</div>
                 <div>
-                  <div className="fw-600 text-sm" style={{ color: 'var(--rp-text-primary)' }}>Andrea K.</div>
-                  <div className="text-xs" style={{ color: 'var(--rp-text-muted)' }}>GM, Embassy Suites Chicago</div>
+                  <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#f0f6ff' }}>Andrea K.</div>
+                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>GM, Embassy Suites Chicago</div>
                 </div>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: 2 }}>
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} style={{ color: '#f59e0b', fontSize: '0.875rem' }}>★</span>
-                  ))}
+                  {[...Array(5)].map((_, i) => <span key={i} style={{ color: '#f59e0b', fontSize: '0.875rem' }}>★</span>)}
                 </div>
               </div>
             </div>
-
-            {/* Metrics */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
               {HERO_STATS.map((s, i) => (
-                <div key={i} style={{
-                  background: 'var(--rp-bg-glass)', border: '1px solid var(--rp-border)',
-                  borderRadius: 'var(--r-lg)', padding: 'var(--space-4)', textAlign: 'center',
-                }}>
-                  <div style={{
-                    fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.5rem',
-                    letterSpacing: '-0.03em',
-                    background: 'var(--rp-gradient-brand)',
-                    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-                    marginBottom: 4,
-                  }}>{s.value}</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--rp-text-muted)', lineHeight: 1.3 }}>{s.label}</div>
+                <div key={i} className="rpl-stat-card">
+                  <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '1.6rem', letterSpacing: '-0.04em', background: 'linear-gradient(90deg, #60c4ff, #2DB580)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: 4 }}>{s.value}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.3 }}>{s.label}</div>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* ── Form panel ───────────────────────────────────────────────────── */}
-        <div className="rp-login-form-panel animate-fadeInUp">
-          <div style={{ maxWidth: 400, width: '100%', margin: '0 auto' }}>
+        {/* ── FORM PANEL ────────────────────────────────────────────────── */}
+        <div className="rp-login-form-panel" style={{ animation: 'rp-slideUp 0.5s ease forwards' }}>
+          <div style={{ maxWidth: 380, width: '100%', margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
             {/* Header */}
-            <div style={{ marginBottom: 'var(--space-8)' }}>
-              {/* Mobile logo */}
-              <div style={{ display: 'none', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-8)' }}
-                id="mobile-logo">
-                <div className="rp-logo-mark">R</div>
-                <div style={{
-                  fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem',
-                  background: 'var(--rp-gradient-brand)',
-                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-                }}>RelayPoint</div>
-              </div>
-
+            <div style={{ marginBottom: 36 }}>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
-                background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)',
-                borderRadius: 'var(--r-full)', padding: '4px 12px',
-                fontSize: '0.75rem', fontWeight: 600, color: '#10b981',
-                marginBottom: 'var(--space-4)',
+                background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)',
+                borderRadius: 99, padding: '4px 12px',
+                fontSize: '0.75rem', fontWeight: 600, color: '#34d399',
+                marginBottom: 16,
               }}>
-                <span className="rp-dot pulse" style={{ background: '#10b981' }} />
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', animation: 'rp-pulseDot 2s ease-in-out infinite' }} />
                 Pilot Program Active
               </div>
-              <h2 style={{ marginBottom: 'var(--space-2)' }}>Welcome back</h2>
-              <p>Sign in to your RelayPoint workspace.</p>
+              <h2 style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontWeight: 800, fontSize: 'clamp(1.5rem, 2.5vw, 1.875rem)',
+                letterSpacing: '-0.025em', color: '#f0f6ff', margin: '0 0 8px',
+              }}>Welcome back</h2>
+              <p style={{ fontSize: '0.9375rem', color: 'rgba(240,246,255,0.5)', margin: 0 }}>Sign in to your RelayPoint workspace.</p>
             </div>
 
-            {/* Form */}
+            {/* ── Demo CTA ─────────────────────────────────────────────── */}
+            <button
+              type="button"
+              className="rpl-demo-btn"
+              onClick={handleDemo}
+              disabled={demoLoading}
+              style={{ marginBottom: 24 }}
+            >
+              {demoLoading ? <><IconSpinner /> Loading demo…</> : <>▶ Preview Live Demo — no login needed</>}
+            </button>
+
+            {/* Divider */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)' }} />
+              <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>or sign in with your account</span>
+              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)' }} />
+            </div>
+
+            {/* ── Form ─────────────────────────────────────────────────── */}
             <form onSubmit={handleLogin}>
               {/* Email */}
-              <div className="rp-field">
-                <label className="rp-label" htmlFor="rp-email">Email address</label>
-                <div className="input-icon-wrap">
-                  <span className="icon-left"><IconMail /></span>
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'rgba(240,246,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }} htmlFor="rp-email">Email address</label>
+                <div style={{ position: 'relative' }}>
+                  <span className="input-icon-left"><IconMail /></span>
                   <input
                     id="rp-email"
                     type="email"
-                    className="rp-input"
+                    className="rpl-input"
                     placeholder="you@hotel.com"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     required
                     autoComplete="email"
-                    autoFocus
                   />
                 </div>
               </div>
 
               {/* Password */}
-              <div className="rp-field">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <label className="rp-label" htmlFor="rp-password">Password</label>
-                  <a href="#" style={{ fontSize: '0.75rem' }}>Forgot password?</a>
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(240,246,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.07em' }} htmlFor="rp-password">Password</label>
+                  <a href="#" style={{ fontSize: '0.8rem', color: '#1080D0', fontWeight: 500, textDecoration: 'none' }}>Forgot password?</a>
                 </div>
-                <div className="input-icon-wrap">
-                  <span className="icon-left"><IconLock /></span>
+                <div style={{ position: 'relative' }}>
+                  <span className="input-icon-left"><IconLock /></span>
                   <input
                     id="rp-password"
                     type={showPassword ? 'text' : 'password'}
-                    className="rp-input"
+                    className="rpl-input"
                     placeholder="••••••••"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
@@ -323,7 +388,7 @@ export default function LoginForm() {
                     autoComplete="current-password"
                     style={{ paddingRight: 44 }}
                   />
-                  <button type="button" className="icon-right" onClick={() => setShowPass(v => !v)}>
+                  <button type="button" className="rpl-pw-toggle" onClick={() => setShowPass(v => !v)} aria-label="Toggle password visibility">
                     <IconEye off={showPassword} />
                   </button>
                 </div>
@@ -333,41 +398,28 @@ export default function LoginForm() {
               {error && (
                 <div style={{
                   background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)',
-                  borderRadius: 'var(--r-md)', padding: 'var(--space-3) var(--space-4)',
-                  marginBottom: 'var(--space-4)', fontSize: '0.875rem', color: '#ef4444',
-                  display: 'flex', alignItems: 'center', gap: 'var(--space-2)',
+                  borderRadius: 10, padding: '12px 16px', marginBottom: 16,
+                  fontSize: '0.875rem', color: '#f87171',
+                  display: 'flex', alignItems: 'center', gap: 8,
                 }}>
                   <span>⚠</span> {error}
                 </div>
               )}
 
               {/* Submit */}
-              <button
-                type="submit"
-                className="rp-btn rp-btn--primary rp-btn--lg rp-btn--full"
-                disabled={loading}
-                style={{ marginBottom: 'var(--space-4)' }}
-              >
-                {loading ? (
-                  <><IconSpinner /> Signing in…</>
-                ) : (
-                  <>Sign in <IconArrowRight /></>
-                )}
+              <button type="submit" className="rpl-primary-btn" disabled={loading} style={{ marginBottom: 16 }}>
+                {loading ? <><IconSpinner /> Signing in…</> : <>Sign in <IconArrowRight /></>}
               </button>
 
               {/* Divider */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
-                <hr className="rp-divider" style={{ flex: 1, margin: 0 }} />
-                <span style={{ fontSize: '0.75rem', color: 'var(--rp-text-muted)', whiteSpace: 'nowrap' }}>OR</span>
-                <hr className="rp-divider" style={{ flex: 1, margin: 0 }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '16px 0' }}>
+                <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)' }} />
+                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>OR</span>
+                <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)' }} />
               </div>
 
               {/* SSO */}
-              <button
-                type="button"
-                className="rp-btn rp-btn--secondary rp-btn--full"
-                style={{ marginBottom: 'var(--space-6)' }}
-              >
+              <button type="button" className="rpl-sso-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
                 </svg>
@@ -375,14 +427,12 @@ export default function LoginForm() {
               </button>
             </form>
 
-            {/* Footer note */}
-            <p style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--rp-text-muted)', lineHeight: 1.6 }}>
+            <p style={{ fontSize: '0.75rem', textAlign: 'center', color: 'rgba(240,246,255,0.3)', lineHeight: 1.7, marginTop: 24 }}>
               By signing in, you agree to RelayPoint's{' '}
-              <a href="#">Terms of Service</a> and{' '}
-              <a href="#">Privacy Policy</a>.
-              <br />Protected by 256-bit TLS encryption.
+              <a href="#" style={{ color: '#1080D0' }}>Terms of Service</a> and{' '}
+              <a href="#" style={{ color: '#1080D0' }}>Privacy Policy</a>.<br />
+              Protected by 256-bit TLS encryption.
             </p>
-
           </div>
         </div>
       </div>
