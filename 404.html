@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RelayPoint</title>
+    <!--
+      GitHub Pages SPA routing shim.
+
+      When a user navigates directly to a deep link (e.g. /dashboard/tasks)
+      or refreshes a non-root page, GitHub Pages returns this 404.html.
+      This script encodes the path into the query string and redirects to
+      index.html, which then decodes it and restores the real URL via
+      the History API — making client-side routing work transparently.
+
+      Technique: https://github.com/rafgraph/spa-github-pages
+    -->
+    <script>
+      // Number of path segments to keep in the base path.
+      // For a repo site at  https://user.github.io/RelayPoint/
+      // set this to 1  (the repo name counts as one segment).
+      // For a custom domain at  https://app.relaypoint.io/
+      // set this to 0.
+      var pathSegmentsToKeep = 1;
+
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') +
+        '/?/' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    </script>
+  </head>
+  <body></body>
+</html>

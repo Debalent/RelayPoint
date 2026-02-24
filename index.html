@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#001040" />
+    <meta name="description" content="RelayPoint — AI-Powered Hospitality Workflow Automation. Real-time task management, forecasting, and smart coordination for hotel operations." />
+    <meta name="keywords" content="hospitality automation, hotel operations, AI workflow, staff forecasting" />
+    <meta property="og:title" content="RelayPoint — Smarter Hotel Operations" />
+    <meta property="og:description" content="AI-powered workflow automation for hospitality teams." />
+    <meta property="og:type" content="website" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- GitHub Pages SPA routing: decode the path we encoded in 404.html back into a real URL -->
+    <script>
+      (function(l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search.slice(1).split('&').map(function(s) {
+            return s.replace(/~and~/g, '&');
+          }).join('?');
+          window.history.replaceState(
+            null, null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location));
+    </script>
+
+    <!-- Premium Typography: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <title>RelayPoint — Smarter Hotel Operations</title>
+
+    <style>
+      /* Critical above-the-fold styles to prevent FOUC */
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #000D2E;
+        color: #f0f6ff;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
+      }
+      #root { min-height: 100vh; display: flex; flex-direction: column; }
+      /* Prevent layout shift */
+      #root:empty::before {
+        content: '';
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(135deg, #000D2E 0%, #001B4D 50%, #000D2E 100%);
+      }
+    </style>
+  <link rel="preload" href="/_expo\static\css\index-ab0475e9f230a1ed928c1c0f768eab56.css" as="style"><link rel="stylesheet" href="/_expo\static\css\index-ab0475e9f230a1ed928c1c0f768eab56.css"><link rel="preload" href="/_expo\static\css\App-ae673ea53016245f9f2c4140b80aee47.css" as="style"><link rel="stylesheet" href="/_expo\static\css\App-ae673ea53016245f9f2c4140b80aee47.css"></head>
+  <body>
+    <noscript>RelayPoint requires JavaScript to run. Please enable JavaScript in your browser settings.</noscript>
+    <div id="root"></div>
+  <script src="/_expo/static/js/web/index-9fa8188b838497081b5609a55a1a9926.js" defer></script>
+</body>
+</html>

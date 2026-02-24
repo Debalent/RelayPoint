@@ -1,0 +1,450 @@
+# RelayPoint Elite - Production CI/CD Pipeline
+# GitHub Actions workflow for automated testing, building, and deployment
+
+name: Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_BACKEND: ${{ github.repository }}/backend
+  IMAGE_NAME_FRONTEND: ${{ github.repository }}/frontend
+
+jobs:
+  # Backend Testing & Security Scanning
+  backend-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11]
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_USER: testuser
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-asyncio black isort mypy
+
+    - name: Code formatting check
+      working-directory: ./backend
+      run: |
+        black --check .
+        isort --check-only .
+
+    - name: Type checking
+      working-directory: ./backend
+      run: mypy app/
+
+    - name: Security scanning
+      working-directory: ./backend
+      run: |
+        pip install bandit safety
+        bandit -r app/ -f json -o bandit-report.json || true
+        safety check --json > safety-report.json || true
+
+    - name: Run tests with coverage
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+        REDIS_URL: redis://localhost:6379/0
+        SECRET_KEY: test-secret-key
+        ENVIRONMENT: testing
+      run: |
+        pytest --cov=app --cov-report=xml --cov-report=html -v
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./backend/coverage.xml
+        flags: backend
+        name: backend-coverage
+
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: backend-test-results
+        path: |
+          backend/htmlcov/
+          backend/bandit-report.json
+          backend/safety-report.json
+
+  # Frontend Testing & Building
+  frontend-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Lint code
+      working-directory: ./frontend
+      run: |
+        npm run lint
+        npm run type-check
+
+    - name: Run tests
+      working-directory: ./frontend
+      run: npm run test -- --coverage --watchAll=false
+
+    - name: Build application
+      working-directory: ./frontend
+      run: npm run build
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./frontend/coverage/lcov.info
+        flags: frontend
+        name: frontend-coverage
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-build
+        path: frontend/build/
+
+  # Security Scanning
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Build and Push Docker Images
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-test, security-scan]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Extract metadata (backend)
+      id: meta-backend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push backend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        push: true
+        tags: ${{ steps.meta-backend.outputs.tags }}
+        labels: ${{ steps.meta-backend.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64,linux/arm64
+
+    - name: Extract metadata (frontend)
+      id: meta-frontend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push frontend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        push: true
+        tags: ${{ steps.meta-frontend.outputs.tags }}
+        labels: ${{ steps.meta-frontend.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64,linux/arm64
+
+  # Deploy to Staging
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [build-and-push]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: staging
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region us-west-2 --name relaypoint-staging
+
+    - name: Deploy to staging
+      run: |
+        # Update image tags in deployment
+        sed -i "s|image: relaypoint/backend:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:${{ github.sha }}|g" k8s/staging/deployment.yaml
+        sed -i "s|image: relaypoint/frontend:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.sha }}|g" k8s/staging/deployment.yaml
+        
+        # Apply Kubernetes manifests
+        kubectl apply -f k8s/staging/
+        
+        # Wait for deployment to complete
+        kubectl rollout status deployment/backend -n relaypoint-staging --timeout=300s
+        kubectl rollout status deployment/frontend -n relaypoint-staging --timeout=300s
+
+    - name: Run smoke tests
+      run: |
+        # Wait for services to be ready
+        sleep 30
+        
+        # Get staging URL
+        STAGING_URL=$(kubectl get ingress relaypoint-ingress -n relaypoint-staging -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        
+        # Run basic health checks
+        curl -f "http://${STAGING_URL}/health" || exit 1
+        curl -f "http://${STAGING_URL}/api/v1/health" || exit 1
+
+  # Run Integration Tests
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install test dependencies
+      run: |
+        pip install pytest requests selenium
+
+    - name: Run integration tests
+      env:
+        STAGING_URL: ${{ secrets.STAGING_URL }}
+        TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+        TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      run: |
+        pytest tests/integration/ -v
+
+  # Deploy to Production
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    if: github.event_name == 'release' && github.event.action == 'published'
+    environment: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+        aws-region: us-west-2
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region us-west-2 --name relaypoint-production
+
+    - name: Deploy to production
+      run: |
+        # Update image tags with release version
+        sed -i "s|image: relaypoint/backend:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:${{ github.event.release.tag_name }}|g" k8s/production/deployment.yaml
+        sed -i "s|image: relaypoint/frontend:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.event.release.tag_name }}|g" k8s/production/deployment.yaml
+        
+        # Apply Kubernetes manifests
+        kubectl apply -f k8s/production/
+        
+        # Wait for deployment to complete
+        kubectl rollout status deployment/backend -n relaypoint-elite --timeout=600s
+        kubectl rollout status deployment/frontend -n relaypoint-elite --timeout=600s
+
+    - name: Verify production deployment
+      run: |
+        # Wait for services to stabilize
+        sleep 60
+        
+        # Run production health checks
+        kubectl get pods -n relaypoint-elite
+        kubectl get services -n relaypoint-elite
+        kubectl get ingress -n relaypoint-elite
+        
+        # Test production endpoints
+        PROD_URL="https://app.relaypoint.ai"
+        curl -f "${PROD_URL}/health" || exit 1
+        curl -f "https://api.relaypoint.ai/health" || exit 1
+
+  # Rollback on Failure
+  rollback-production:
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: failure() && github.event_name == 'release'
+    environment: production
+
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+        aws-region: us-west-2
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region us-west-2 --name relaypoint-production
+
+    - name: Rollback deployment
+      run: |
+        kubectl rollout undo deployment/backend -n relaypoint-elite
+        kubectl rollout undo deployment/frontend -n relaypoint-elite
+        
+        # Wait for rollback to complete
+        kubectl rollout status deployment/backend -n relaypoint-elite --timeout=300s
+        kubectl rollout status deployment/frontend -n relaypoint-elite --timeout=300s
+
+    - name: Notify team of rollback
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        text: 'Production deployment failed and was rolled back!'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+  # Notify Success
+  notify-success:
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: success() && github.event_name == 'release'
+
+    steps:
+    - name: Notify team of successful deployment
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        text: 'Production deployment successful! 🚀'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
